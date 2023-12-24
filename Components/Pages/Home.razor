@@ -1,0 +1,171 @@
+﻿@page "/"
+@using OneCore.Entities
+@using OneCore.Repositories
+@inject UserRepository userRepository;
+@inject CustomLoggerRepository customLoggerRepository;
+@using OneCore.Components.Shared
+@inject StateContainer StateContainer
+
+<PageTitle>Home</PageTitle>
+
+<img src="/img/OneCoreLogo.png" />
+<h3 class="mb-5">Análisis de archivos con IA</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body">
+                    @if (!Toggle)
+                    {
+                        <h2 class="card-title mb-3"><i class="fas fa-door-open"></i> Login</h2>
+                        <form method="post" @onsubmit="Submit" @formname="login-form" class="mb-4">
+                            <AntiforgeryToken />
+                            <div class="mb-3">
+                                <label for="email" class="form-label"><i class="fas fa-envelope"></i> Email</label>
+                                <InputText @bind-Value="User!.Email" type="text" id="email" class="form-control" placeholder="user@example.com" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label"><i class="fas fa-key"></i> Password</label>
+                                <InputText type="password" @bind-Value="User!.Password" class="form-control" id="password" />
+                            </div>
+                            <button id="btn-login" type="submit" class="btn btn-primary"><i class="fas fa-door-open"></i> Entrar</button>
+                        </form>
+                        @if (MessageForLoginForm != "")
+                        {
+                            <span class="text-danger">@((MarkupString)MessageForLoginForm)</span>
+                        }
+                    }
+                    else
+                    {
+                        <h2 class="card-title mb-3"><i class="fas fa-user"></i> Datos del usuario</h2>
+                        <ul class="list-group">
+                            <li class="list-group-item">Email: @User.Email</li>
+                            <li class="list-group-item">Contraseña: ****</li>
+                        </ul>
+                        <button @onclick="Salir" class="btn btn-danger mt-3"><i class="fas fa-lock"></i> Salir</button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <img src="/img/NETyAWS.png" class="mb-4" width="350" alt="logos">
+            <h5><b>AWS</b></h5>
+            <ul>
+                <li>Los archivos .pdf, .jpg y .png se guardan en AWS S3</li>
+                <li>Se utiliza para análisis de archivos, Textract de AWS</li>
+            </ul>
+            <h5><b>.NET</b></h5>
+            <ul>
+                <li>Se usa .NET 8 y Blazor para el desarrollo de la aplicación web</li>
+                <li>Para el estilo y diseño del front-end se usa Bootstrap</li>
+            </ul>
+            <h5><b>NOTAS</b></h5>
+            <ul>
+                <li>No se usa sesión ni en el servidor ni el buscador, para pasar información entre componentes/páginas se usa un servicio alojado en Components/Shared/StateContainer.cs</li>
+                <li>El diseño de la aplicación esta totalmente en castellano, pero el código esta todo en ingles</li>
+            </ul>
+            <h5><b>Features agregados además de los solicitados</b></h5>
+            <ul>
+                <li>Sistema de login con email y contraseña</li>
+                <li>En la página de log, se puede descargar, además de Excel, también PDF y CSV</li>
+                <li>Se hizo una página especial para subir facturas customizadas de un proveedor particular</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    public User? User { get; set; }
+
+    public string MessageForLoginForm { get; set; } = "";
+    public bool Toggle { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        //Look for saved user in shared component, simulates a session
+        User = StateContainer.User == null ? new() : StateContainer.User;
+
+        if (User.UserId !=0)
+        {
+            //Logged user
+            Toggle = true;
+        }
+        else
+        {
+            //Not logged user
+            Toggle = false;
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+    }
+
+    private async void Submit()
+    {
+        try
+        {
+            //Validations
+            if (User!.Email == "" || User!.Password == "")
+            {
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> Completa todos los campos";
+                return;
+            }
+
+            //Get user by email and password
+            User = userRepository.GetByEmailAndPassword(User.Email, User.Password, CancellationToken.None);
+
+            //Next if is to quit null value from User
+            if (User == null)
+            {
+                User = new();
+            }
+
+            if (User.UserId != 0)
+            {
+                //User found
+                StateContainer.User = User;
+                Toggle = true;
+
+                //Log info
+                CustomLogger customLogger = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Interacción del usuario",
+                        Description = $@"El usuario {User.Email} ha ingresado al sistema",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository.Add(customLogger, CancellationToken.None);
+            }
+            else
+            {
+                //User not found
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> Usuario no encontrado";
+                
+                //Log info
+                CustomLogger customLogger = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Interacción del usuario",
+                        Description = $@"Un usuario ha intentado entrar al sistema pero no pudo",
+                        UserId = 0
+                    };
+                await customLoggerRepository.Add(customLogger, CancellationToken.None);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> Hubo un error. Intenta nuevamente. Mensaje de error: {ex.Message}";
+        }
+    }
+
+    private void Salir(MouseEventArgs e)
+    {
+        User = new User();
+        StateContainer.User = new User();
+        //Show login form
+        Toggle = false;
+    }
+}
+
