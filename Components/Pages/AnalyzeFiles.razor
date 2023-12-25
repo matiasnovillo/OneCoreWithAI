@@ -1,0 +1,387 @@
+﻿@page "/analyzefiles"
+@rendermode InteractiveServer
+@using System.Text
+@using System.IO;
+@using OneCore.DTOs;
+@using OneCore.Repositories;
+@using OneCore.Entities;
+@using OneCore.CommonFunctions;
+@inject BillRepository billRepository;
+@inject CustomLoggerRepository customLoggerRepository;
+@using OneCore.Components.Shared
+@inject StateContainer StateContainer
+
+<PageTitle>Carga de archivos</PageTitle>
+
+@if (Toggle)
+{
+    <!--Usuario logueado-->
+    <h1 class="mb-3">
+        <i class="fas fa-file"></i> 
+        Carga de archivos para analizar
+    </h1>
+
+    <div class="alert alert-warning mb-3" role="alert">
+        <i class="fas fa-exclamation"></i> 
+        Recuerda que los archivos deben estar en formato <b>PDF</b>,
+        <b>PNG</b> o <b>JPG</b>, y deben pesar menos de <b>3MB</b>.
+    </div>
+        
+    <div class="alert alert-info mb-5" role="alert">
+        <i class="fas fa-info"></i>
+        Para analizar archivos, dejo de ejemplo una 
+        <a class="btn btn-link" download href="Downloads/FilesToAnalyze/Textract-Example-Bill.pdf">
+            factura
+            <i class="fas fa-download"></i>
+        </a> y un
+        <a class="btn btn-link" download href="Downloads/FilesToAnalyze/Textract-Example-Document.pdf">
+            documento
+            <i class="fas fa-download"></i>
+        </a>
+        para que puedas descargar y probar.
+    </div>
+
+    <!--Archivo a cargar-->
+    <label for="myfile" class="form-label">
+        <i class="fas fa-upload"></i> Selecciona un archivo</label>
+    <InputFile OnChange="@UploadFile" 
+        class="form-control form-control-lg mb-1" 
+        id="myfile" name="myfile" />
+    <span class="text-danger">@((MarkupString)ErrorMessage)</span>
+    <br />
+
+    
+    var progressCss = "progress" + (DisplayProgress ? "" : "d-none");
+    var progressWidthStyle = ProgressPercent + "%";
+
+    <!-- Progress bar -->
+    <p>@ProgressText</p>
+    <div class="@progressCss">
+        <div class="progress-bar progress-bar-striped progress-bar-animated @ProgressBarColour" 
+        role="progressbar" style="width:@progressWidthStyle"
+        area-valuenow="@ProgressPercent" aria-valuemin="0" 
+        aria-valuemax="100">
+        </div>
+    </div>
+    <br />
+
+    @if(ButtonText != "")
+    {
+        <button type="button" class="btn btn-success" 
+        data-bs-toggle="modal" 
+        data-bs-target="#OneCoreModal">
+            @ButtonText
+        </button>
+    }
+
+<!-- Modal -->
+<div class="modal fade" id="OneCoreModal" tabindex="-1" 
+aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" 
+                id="exampleModalLabel">
+                    @((MarkupString)ModalTitleToRender)
+                </h1>
+            </div>
+            <div class="modal-body">
+                @((MarkupString)ModalBodyToRender)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" 
+                data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+else
+{
+    <!--Usuario NO logueado-->
+    <div class="container">
+        <div class="d-flex mt-5 pt-5 justify-content-center">
+            <div class="card" style="width: 30rem;">
+                <a href="https://www.shutterstock.com/es/image-photo/astronaut-elements-this-image-furnished-by-1022034061" 
+                target="_blank">
+                    <img src="/img/astronaut.jpg" class="card-img-top" 
+                    alt="login-first">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Contenido no disponible
+                    </h5>
+                    <p class="card-text">
+                        Para acceder a este contenido debes ingresar 
+                        tus credenciales primero
+                    </p>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i> 
+                        Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    public string ScannedText { get; set; } = "";
+    public string ErrorMessage { get; set; } = "";
+    public string ButtonText { get; set; } = "";
+    public string ModalTitleToRender { get; set; } = "";
+    public string ModalBodyToRender { get; set; } = "";
+    public string TablesToRender { get; set; } = "";
+    public bool Toggle { get; set; }
+
+    //Progress bar
+    public bool DisplayProgress { get; set; } = false;
+    public int ProgressPercent { get; set; } = 0;
+    public string ProgressText { get; set; } = "";
+    public string ProgressBarColour { get; set; } = "bg-info";
+
+    private User User;
+
+    protected override void OnInitialized()
+    { 
+        User = StateContainer.User;
+
+        if (User != null)
+        {
+            if (User.UserId != 0)
+            {
+                //Logged user
+                Toggle = true;
+            }
+            else
+            {
+                //Not logged user
+                Toggle = false;
+            }
+        }
+        else
+        {
+            //Impossible
+            Toggle = false;
+        }
+
+        base.OnInitialized();
+    }
+
+    private void UploadFile(InputFileChangeEventArgs e)
+    {
+        //Basic configuration
+        CommonFunctions CommonFunctions = new();
+
+        if (e.File.Name.EndsWith(".pdf") || e.File.Name.EndsWith(".png") || e.File.Name.EndsWith(".jpg"))
+        {
+            if (e.File.Size <= CommonFunctions.MaxFileSize)
+            {
+                Main(e);
+            }
+            else
+            {
+                ErrorMessage = $@"
+<i class=""fas fa-exclamation""></i> 
+Solo se permiten archivos con un peso máximo de 3MB";
+            }
+        }
+        else
+        {
+            ErrorMessage = $@"
+<i class=""fas fa-exclamation""></i>
+Solo se aceptan archivos PDF, PNG o JPG";
+        }
+    }
+
+    private async void Main(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            //Basic configuration
+            ButtonText = "";
+            ProgressBarColour = "bg-info";
+            ErrorMessage = "";
+            DisplayProgress = true;
+
+            //Save file in local server
+            ProgressText = "Subiendo archivo al servidor...";
+            ProgressPercent = 80;
+            CommonFunctions CommonFunctions = new();
+            await CommonFunctions.SaveFileInLocalServer(e);
+
+            //Log info
+            CustomLogger customLogger = new()
+                {
+                    DateTime = DateTime.Now,
+                    InteractionType = $@"Interacción del usuario",
+                    Description = $@"El usuario {User.Email} ha subido el archivo {e.File.Name} 
+                                    para analizar, al servidor local",
+                    UserId = User.UserId
+                };
+            await customLoggerRepository.Add(customLogger, CancellationToken.None);
+            
+            //Save file in AWS S3 storage
+            ProgressText = "Subiendo archivo a AWS S3...";
+            ProgressPercent = 81;
+            CommonFunctions.SaveFileInAWSS3(e.File.Name);
+
+            //Log info
+            CustomLogger customLogger2 = new()
+                {
+                    DateTime = DateTime.Now,
+                    InteractionType = $@"Interacción del usuario",
+                    Description = $@"El usuario {User.Email} ha subido el archivo {e.File.Name} 
+                                    para analizar, a AWS S3",
+                    UserId = User.UserId
+                };
+            await customLoggerRepository.Add(customLogger2, CancellationToken.None);
+
+            //Scan file located in AWS S3 storage, to get text
+            ProgressText = "Analizando archivo con AWS Textract...";
+            ProgressPercent = 82;
+            ScannedText = await CommonFunctions.ScanFileForLines(e.File.Name);
+
+            //Classify file
+            ProgressText = "Clasificando archivo...";
+            ProgressPercent = 83;
+            char BillOrDocument = ClassifyFile(ScannedText);
+
+            if (BillOrDocument == 'b') //Bill
+            {
+                ProgressText = "El archivo es una factura...";
+                ProgressPercent = 84;
+
+                BillDTO billDTO = await CommonFunctions.ScanFileForTables(e.File.Name);
+
+                TablesToRender = CommonFunctions.CreateHTMLTables(billDTO);
+
+                List<KeyValuePair<string, string>> KeyValuePairResult = await CommonFunctions
+                .ScanFileForForms(e.File.Name);
+
+                string ClientName = (from x in KeyValuePairResult
+                                     where x.Key.Trim() == "Cliente:"
+                                     select x.Value).FirstOrDefault();
+
+                string ClientAddress = (from x in KeyValuePairResult
+                                        where x.Key.Trim() == "Dirección del cliente:"
+                                        select x.Value).FirstOrDefault();
+
+                string ProviderName = (from x in KeyValuePairResult
+                                       where x.Key.Trim() == "Proveedor:"
+                                       select x.Value).FirstOrDefault();
+
+                string ProviderAddress = (from x in KeyValuePairResult
+                                          where x.Key.Trim() == "Dirección del proveedor:"
+                                          select x.Value).FirstOrDefault();
+
+                string BillingNumber = (from x in KeyValuePairResult
+                                        where x.Key.Trim() == "Nro. de factura:"
+                                        select x.Value).FirstOrDefault();
+
+                string BillingDate = (from x in KeyValuePairResult
+                                      where x.Key.Trim() == "Fecha:"
+                                      select x.Value).FirstOrDefault();
+
+                string BillingTotal = (from x in KeyValuePairResult
+                                       where x.Key.Trim() == "Total"
+                                       select x.Value).FirstOrDefault();
+
+                ModalTitleToRender = $@"<i class=""fas fa-file""></i> Documento: Factura";
+
+                ModalBodyToRender = $@"
+<div class=""container"">
+    <ul class=""list-group mb-4"">
+        <li class=""list-group-item""><b>Nombre del cliente:</b> {ClientName}</li>
+        <li class=""list-group-item""><b>Dirección del cliente:</b> {ClientAddress}</li>
+        <li class=""list-group-item""><b>Nombre del proveedor:</b> {ProviderName}</li>
+        <li class=""list-group-item""><b>Dirección del proveedor:</b> {ProviderAddress}</li>
+        <li class=""list-group-item""><b>Nro. de factura:</b> {BillingNumber}</li>
+        <li class=""list-group-item""><b>Fecha de la factura:</b> {BillingDate}</li>
+        <li class=""list-group-item""><b>Total de la factura:</b> {BillingTotal}</li>
+    </ul>
+    {TablesToRender}
+</div>";
+                
+                //Save data in database
+                ProgressText = "Guardando datos en base de datos...";
+                ProgressPercent = 85;
+                Bill Bill = new()
+                {
+                    ClientName = ClientName ?? "",
+                    ClientAddress = ClientAddress ?? "",
+                    ProviderName = ProviderName ?? "",
+                    ProviderAddress = ProviderAddress ?? "",
+                    BillingNumber = BillingNumber ?? "",
+                    BillingDate = BillingDate ?? "",
+                    BillingTotal = BillingTotal ?? "",
+                    FileName = e.File.Name,
+                    FileURL = Path.Combine(Environment.CurrentDirectory, "Uploads", e.File.Name),
+                    UserId = StateContainer.User.UserId
+
+                };
+                await billRepository.Add(Bill, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger3 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"AWS Textract ha detectado que {e.File.Name} es una factura",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository.Add(customLogger3, CancellationToken.None);
+            }
+            else //Document
+            {
+                ProgressText = "El archivo es un documento...";
+                ProgressPercent = 86;
+
+                //TODO
+
+                //Log info
+                CustomLogger customLogger3 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"AWS Textract ha detectado que {e.File.Name} es un 
+                                        documento (no es factura)",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository.Add(customLogger3, CancellationToken.None);
+            }
+
+            ButtonText = "Ver análisis";
+            ProgressText = "Análisis finalizado";
+            ProgressPercent = 100;
+            ProgressBarColour = "bg-success";
+        }
+        catch (Exception ex)
+        {
+            ProgressText = "Error...";
+            ProgressPercent = 0;
+            ProgressBarColour = "bg-danger";
+            ErrorMessage = $@"<i class=""fas fa-exclamation""></i> {ex.Message}";
+        }
+        finally
+        {
+            //Re-render the page to show ScannedText
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+        }
+    }
+
+    public char ClassifyFile(string text)
+    {
+        string TextToLower = text.ToLower();
+        if (TextToLower.Contains("i.v.a") || TextToLower.Contains("iva"))
+        {
+            return 'b';
+        }
+        else
+        {
+            return 'd';
+        }
+
+    }
+}

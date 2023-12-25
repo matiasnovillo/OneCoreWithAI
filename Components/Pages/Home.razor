@@ -17,58 +17,113 @@
                 <div class="card-body">
                     @if (!Toggle)
                     {
-                        <h2 class="card-title mb-3"><i class="fas fa-door-open"></i> Login</h2>
-                        <form method="post" @onsubmit="Submit" @formname="login-form" class="mb-4">
+                        <h2 class="card-title mb-3">
+                            <i class="fas fa-door-open"></i> 
+                            Login
+                        </h2>
+                        <form method="post" @onsubmit="Submit" 
+                            @formname="login-form" class="mb-4">
                             <AntiforgeryToken />
                             <div class="mb-3">
-                                <label for="email" class="form-label"><i class="fas fa-envelope"></i> Email</label>
-                                <InputText @bind-Value="User!.Email" type="text" id="email" class="form-control" placeholder="user@example.com" />
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope"></i> 
+                                    Email
+                                </label>
+                                <InputText @bind-Value="User!.Email" 
+                                type="text" id="email" 
+                                class="form-control" 
+                                placeholder="user@example.com" />
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label"><i class="fas fa-key"></i> Password</label>
-                                <InputText type="password" @bind-Value="User!.Password" class="form-control" id="password" />
+                                <label for="password" 
+                                    class="form-label">
+                                    <i class="fas fa-key"></i> 
+                                    Password
+                                </label>
+                                <InputText type="password" 
+                                    @bind-Value="User!.Password" 
+                                    class="form-control" 
+                                    id="password" />
                             </div>
-                            <button id="btn-login" type="submit" class="btn btn-primary"><i class="fas fa-door-open"></i> Entrar</button>
+                            <button id="btn-login" type="submit" 
+                            class="btn btn-primary">
+                                <i class="fas fa-door-open"></i> 
+                                Entrar
+                            </button>
                         </form>
                         @if (MessageForLoginForm != "")
                         {
-                            <span class="text-danger">@((MarkupString)MessageForLoginForm)</span>
+                            <span class="text-danger">
+                                @((MarkupString)MessageForLoginForm)
+                            </span>
                         }
                     }
                     else
                     {
-                        <h2 class="card-title mb-3"><i class="fas fa-user"></i> Datos del usuario</h2>
+                        <h2 class="card-title mb-3">
+                            <i class="fas fa-user"></i> 
+                            Datos del usuario
+                        </h2>
                         <ul class="list-group">
-                            <li class="list-group-item">Email: @User.Email</li>
-                            <li class="list-group-item">Contraseña: ****</li>
+                            <li class="list-group-item">
+                                Email: @User.Email
+                            </li>
+                            <li class="list-group-item">
+                                Contraseña: ****
+                            </li>
                         </ul>
-                        <button @onclick="Salir" class="btn btn-danger mt-3"><i class="fas fa-lock"></i> Salir</button>
+                        <button @onclick="Salir" 
+                            class="btn btn-danger mt-3">
+                            <i class="fas fa-lock"></i> 
+                            Salir
+                        </button>
                     }
                 </div>
             </div>
         </div>
         <div class="col-8">
-            <img src="/img/NETyAWS.png" class="mb-4" width="350" alt="logos">
+            <img src="/img/NETyAWS.png" class="mb-4" 
+            width="350" alt="logos">
             <h5><b>AWS</b></h5>
             <ul>
-                <li>Los archivos .pdf, .jpg y .png se guardan en AWS S3</li>
-                <li>Se utiliza para análisis de archivos, Textract de AWS</li>
+                <li>Los archivos .pdf, .jpg y .png se guardan en
+                    AWS S3
+                </li>
+                <li>Se utiliza para análisis de archivos, 
+                    Textract de AWS
+                </li>
             </ul>
             <h5><b>.NET</b></h5>
             <ul>
-                <li>Se usa .NET 8 y Blazor para el desarrollo de la aplicación web</li>
-                <li>Para el estilo y diseño del front-end se usa Bootstrap</li>
+                <li>Se usa .NET 8 y Blazor para el desarrollo de 
+                    la aplicación web
+                </li>
+                <li>Para el estilo y diseño del front-end se 
+                    usa Bootstrap
+                </li>
             </ul>
             <h5><b>NOTAS</b></h5>
             <ul>
-                <li>No se usa sesión ni en el servidor ni el buscador, para pasar información entre componentes/páginas se usa un servicio alojado en Components/Shared/StateContainer.cs</li>
-                <li>El diseño de la aplicación esta totalmente en castellano, pero el código esta todo en ingles</li>
+                <li>No se usa sesión ni en el servidor ni el 
+                    buscador, para pasar información entre 
+                    componentes/páginas se usa un servicio alojado
+                    en Components/Shared/StateContainer.cs
+                </li>
+                <li>El diseño de la aplicación esta totalmente 
+                    en castellano, pero el código esta todo en 
+                    ingles
+                </li>
             </ul>
             <h5><b>Features agregados además de los solicitados</b></h5>
             <ul>
                 <li>Sistema de login con email y contraseña</li>
-                <li>En la página de log, se puede descargar, además de Excel, también PDF y CSV</li>
-                <li>Se hizo una página especial para subir facturas customizadas de un proveedor particular</li>
+                <li>En la página de log, se puede descargar, 
+                    además de Excel, también PDF y CSV
+                </li>
+                <li>Se hizo una página especial para subir 
+                    facturas customizadas de un proveedor 
+                    particular de telecomunicaciones
+                </li>
             </ul>
         </div>
     </div>
