@@ -6,14 +6,22 @@
 @using OneCore.Components.Shared
 @inject StateContainer StateContainer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Home - OneCore</PageTitle>
 
-<img src="/img/OneCoreLogo.png" />
-<h3 class="mb-5">Análisis de archivos con IA</h3>
 <div class="container">
+    <div>
+        <div class="card-header"><img src="/img/OneCoreLogo.png" /></div>
+        <div class="card-body">
+            <h3>Análisis de archivos con IA</h3>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">AWS Textract</li>
+                <li class="list-group-item">Google Cloud NLP</li>
+            </ul>
+        </div>
+    </div>
     <div class="row">
         <div class="col-4">
-            <div class="card">
+            <div class="card bg-light">
                 <div class="card-body">
                     @if (!Toggle)
                     {
@@ -82,49 +90,108 @@
             </div>
         </div>
         <div class="col-8">
-            <img src="/img/NETyAWS.png" class="mb-4" 
-            width="350" alt="logos">
-            <h5><b>AWS</b></h5>
-            <ul>
-                <li>Los archivos .pdf, .jpg y .png se guardan en
-                    AWS S3
-                </li>
-                <li>Se utiliza para análisis de archivos, 
-                    Textract de AWS
-                </li>
-            </ul>
-            <h5><b>.NET</b></h5>
-            <ul>
-                <li>Se usa .NET 8 y Blazor para el desarrollo de 
-                    la aplicación web
-                </li>
-                <li>Para el estilo y diseño del front-end se 
-                    usa Bootstrap
-                </li>
-            </ul>
-            <h5><b>NOTAS</b></h5>
-            <ul>
-                <li>No se usa sesión ni en el servidor ni el 
-                    buscador, para pasar información entre 
-                    componentes/páginas se usa un servicio alojado
-                    en Components/Shared/StateContainer.cs
-                </li>
-                <li>El diseño de la aplicación esta totalmente 
-                    en castellano, pero el código esta todo en 
-                    ingles
-                </li>
-            </ul>
-            <h5><b>Features agregados además de los solicitados</b></h5>
-            <ul>
-                <li>Sistema de login con email y contraseña</li>
-                <li>En la página de log, se puede descargar, 
-                    además de Excel, también PDF y CSV
-                </li>
-                <li>Se hizo una página especial para subir 
-                    facturas customizadas de un proveedor 
-                    particular de telecomunicaciones
-                </li>
-            </ul>
+            <div class="card bg-light">
+                <img src="/img/NETyAWS.png" class="card-img-top mb-4"
+                     width="350" alt="logos">
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light"><h5><b>.NET</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            Se usa .NET 8 y Blazor para el desarrollo de
+                            la aplicación web
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para el estilo y diseño del front-end se
+                            usa Bootstrap
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para los iconos se usa Font Awesome mediante su CDN
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light"><h5><b>AWS</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            Los archivos .pdf, .jpg y .png se guardan en
+                            AWS S3
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de textos,
+                            Textract de AWS
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light"><h5><b>Google Cloud</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de textos,
+                            orientado a resumenes, descripciones y análisis de
+                            sentimientos, Google Cloud NLP API
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de textos,
+                            Textract de AWS
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light"><h5><b>NOTAS</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            No se usa sesión ni en el servidor ni el
+                            buscador, para pasar información entre
+                            componentes/páginas se usa un servicio alojado
+                            en Components/Shared/StateContainer.cs
+                        </li>
+                        <li class="list-group-item bg-light">
+                            El diseño de la aplicación esta totalmente
+                            en castellano, pero el código esta todo en
+                            ingles
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5><b>
+                                Features agregados además de los solicitados
+                                </b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Sistema de login con email y contraseña
+                        </li>
+                        <li class="list-group-item bg-light">
+                            En la página de log, se puede descargar,
+                            además de Excel, también PDF y CSV
+                        </li>
+                        <li class="list-group-item bg-light">
+                            En la página de log, se pueden hacer búsquedas
+                            estrictas o laxas
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se hizo una página especial para subir
+                            facturas customizadas de un proveedor
+                            particular de telecomunicaciones de Argentina
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>
+                                    Features que se pueden agregar en un futuro
+                                </b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Agregar paginacion en la pagina de logging para
+                            evitar cargas grandes de datos
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Dar la posibilidad de agregar multiples archivos
+                            para analizar
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Hacer un CRUD de Usuarios para agregar, editar
+                            o eliminar usuarios
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>

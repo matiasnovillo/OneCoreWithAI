@@ -11,72 +11,82 @@
 @using OneCore.Components.Shared
 @inject StateContainer StateContainer
 
-<PageTitle>Carga de factura customizada</PageTitle>
+<PageTitle>Carga de factura customizada - OneCore</PageTitle>
 
 @if (Toggle)
 {
+<div class="container">
     <!--Usuario logueado-->
+
     <!--Titulo-->
-    <h1 class="mb-3">
-        <i class="fas fa-file"></i> 
-        Carga de factura customizada
-    </h1>
+        <div class="card mb-3">
+            <div class="card-header">
+                <h1>
+                    <i class="fas fa-file"></i>
+                    Carga de factura customizada
+                </h1>
+            </div>
+            <div class="card-body">
+                <!--Alertas-->
+                <div class="alert alert-info mb-3" role="alert">
+                    <i class="fas fa-info"></i>
+                    En esta pagina puedes probar cómo es analizar una
+                    factura totalmente customizada creada por una empresa
+                    real que provee servicios de comunicación.
+                    Puedes descargar la
+                    <a class="btn btn-link" download
+                       href="Downloads/FilesToAnalyze/Textract-Example-Custom-Bill.pdf">
+                        factura customizada
+                        <i class="fas fa-download"></i>
+                    </a>
+                    para probar.
+                </div>
+                <div class="alert alert-warning mb-5" role="alert">
+                    <i class="fas fa-exclamation"></i>
+                    Recuerda que los archivos deben estar en formato <b>PDF</b>,
+                    <b>PNG</b> o <b>JPG</b>, y deben pesar menos de <b>3MB</b>.
+                </div>
 
-    <!--Alertas-->
-    <div class="alert alert-warning mb-3" role="alert">
-        <i class="fas fa-exclamation"></i> 
-        Recuerda que los archivos deben estar en formato <b>PDF</b>,
-        <b>PNG</b> o <b>JPG</b>, y deben pesar menos de <b>3MB</b>.
-    </div>
+                <!--Archivo a cargar-->
+                <label for="myfile" class="form-label">
+                    <i class="fas fa-upload"></i>
+                    Selecciona un archivo
+                </label>
+                <InputFile OnChange="@UploadFile"
+                           class="form-control form-control-lg mb-1"
+                           id="myfile" name="myfile" />
+                <span class="text-danger">@((MarkupString)ErrorMessage)</span>
+                <br />
 
-    <div class="alert alert-info mb-5" role="alert">
-        <i class="fas fa-info"></i> 
-        En esta pagina puedes probar cómo es analizar una 
-        factura totalmente customizada creada por una empresa
-        real que provee servicios de comunicación.
-        Puedes descargar la 
-        <a class="btn btn-link" download 
-        href="Downloads/FilesToAnalyze/Textract-Example-Custom-Bill.pdf">
-            factura customizada
-            <i class="fas fa-download"></i>
-        </a>
-        para probar.
-    </div>
+                <!-- Progress bar -->
+                @{
+                    var progressCss = "progress" + (DisplayProgress ? "" : "d-none");
+                    var progressWidthStyle = ProgressPercent + "%";
+                }
 
-    <!--Archivo a cargar-->
-    <label for="myfile" class="form-label">
-        <i class="fas fa-upload"></i> 
-        Selecciona un archivo
-    </label>
-    <InputFile OnChange="@UploadFile" 
-        class="form-control form-control-lg mb-1" 
-        id="myfile" name="myfile" />
-    <span class="text-danger">@((MarkupString)ErrorMessage)</span>
-    <br />
 
-    <!-- Progress bar -->
-    var progressCss = "progress" + (DisplayProgress ? "" : "d-none");
-    var progressWidthStyle = ProgressPercent + "%";
+                <p>@ProgressText</p>
+                <div class="@progressCss">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated @ProgressBarColour"
+                         role="progressbar" style="width:@progressWidthStyle"
+                         area-valuenow="@ProgressPercent" aria-valuemin="0"
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <br />
 
-    
-    <p>@ProgressText</p>
-    <div class="@progressCss">
-        <div class="progress-bar progress-bar-striped progress-bar-animated @ProgressBarColour" 
-            role="progressbar" style="width:@progressWidthStyle"
-            area-valuenow="@ProgressPercent" aria-valuemin="0" 
-            aria-valuemax="100">
+                @if (ButtonText != "")
+                {
+                    <button type="button" class="btn btn-success"
+                            data-bs-toggle="modal" data-bs-target="#OneCoreModal">
+                        @ButtonText
+                    </button>
+                }
+            </div>
         </div>
-    </div>
-    <br />
 
-    @if (ButtonText != "")
-    {
-        <button type="button" class="btn btn-success" 
-        data-bs-toggle="modal" data-bs-target="#OneCoreModal">
-            @ButtonText
-        </button>
-    }
 
+</div>
     <!-- Modal -->
     <div class="modal fade" id="OneCoreModal" tabindex="-1" 
     aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -106,7 +116,7 @@ else
     <!--Usuario NO logueado-->
     <div class="container">
         <div class="d-flex mt-5 pt-5 justify-content-center">
-            <div class="card" style="width: 30rem;">
+            <div class="card bg-light" style="width: 30rem;">
                 <a href="https://www.shutterstock.com/es/image-photo/astronaut-elements-this-image-furnished-by-1022034061"
                    target="_blank">
                     <img src="/img/astronaut.jpg" class="card-img-top"
