@@ -1,0 +1,323 @@
+﻿@page "/files"
+@using OneCore.Repositories
+@using OneCore.Entities
+@using OneCore.Components.Shared
+@inject DocumentRepository documentRepository
+@inject BillRepository billRepository
+@inject StateContainer StateContainer
+
+<PageTitle>Archivos - OneCore</PageTitle>
+
+@if(Toggle)
+{
+    <!--Usuario logueado-->
+    <div class="container">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h1>
+                    <i class="fas fa-user"></i>
+                    Control de archivos
+                </h1>
+            </div>
+            <p class="mb-3 text-danger">@ErrorMessage</p>
+            <p class="mb-3 text-success">@SuccessMessage</p>
+            <!--Card for bills-->
+            <div class="card-body">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
+                                <!--Searchbox-->
+                                <input type="search" @oninput="SearchTextForBill"
+                                       class="form-control"
+                                       placeholder="Buscar factura por nombre archivo..." />
+                                <br />
+                                <!--Búsqueda estricta-->
+                                <div class="mb-3">
+                                    <h6><b>Búsqueda estricta o laxa</b></h6>
+                                    <input type="checkbox" class="mx-4"
+                                           id="strict-search"
+                                           name="strict-search"
+                                           @bind="checkStrictForBill" />
+                                    <label for="strict-search">
+                                        Búsqueda estricta
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Table-->
+                <h6><b>Cantidad de facturas: @TotalRowsForBill</b></h6>
+                <table class="table table-striped table-hover table-bordered table-responsive mt-4">
+                    <thead>
+                        <tr>
+                            <th>Factura ID</th>
+                            <th>Nombre de archivo</th>
+                            <th>Nombre del cliente</th>
+                            <th>Nombre del proveedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Bill bill in lstBill)
+                        {
+                            <tr>
+                                <td>@bill.BillId</td>
+                                <td>@bill.FileName</td>
+                                <td>@bill.ClientName</td>
+                                <td>@bill.ProviderName</td>
+                                <td>
+                                    <div class="nav-item">
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick=@(() => DeleteBill(@bill.BillId))>
+                                            <span class="fas fa-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                    <div class="nav-item mt-2">
+                                        <a class="btn btn-sm btn-outline-info"
+                                           href="files/document/@bill.BillId">
+                                            <span class="fas fa-pen" aria-hidden="true"></span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!--Card for documents-->
+            <div class="card-body">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
+                                <!--Searchbox-->
+                                <input type="search" @oninput="SearchTextForDocument"
+                                       class="form-control"
+                                       placeholder="Buscar documento por nombre de archivo..." />
+                                <br />
+                                <!--Búsqueda estricta-->
+                                <div class="mb-3">
+                                    <h6><b>Búsqueda estricta o laxa</b></h6>
+                                    <input type="checkbox" class="mx-4"
+                                           id="strict-search"
+                                           name="strict-search"
+                                           @bind="checkStrictForDocument" />
+                                    <label for="strict-search">
+                                        Búsqueda estricta
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Table-->
+                <h6><b>Cantidad de documentos: @TotalRowsForDocument</b></h6>
+                <table class="table table-striped table-hover table-bordered table-responsive mt-4">
+                    <thead>
+                        <tr>
+                            <th>Documento ID</th>
+                            <th>Nombre de archivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Document document in lstDocument)
+                        {
+                            <tr>
+                                <td>@document.DocumentId</td>
+                                <td>@document.FileName</td>
+                                <td>
+                                    <div class="nav-item">
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick=@(() => DeleteDocument(@document.DocumentId))>
+                                            <span class="fas fa-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                    <div class="nav-item mt-2">
+                                        <a class="btn btn-sm btn-outline-info"
+                                           href="files/document/@document.DocumentId">
+                                            <span class="fas fa-pen" aria-hidden="true"></span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!--Usuario NO logueado-->
+    <div class="container">
+        <div class="d-flex mt-5 pt-5 justify-content-center">
+            <div class="card bg-light" style="width: 30rem;">
+                <a href="https://www.shutterstock.com/es/image-photo/astronaut-elements-this-image-furnished-by-1022034061"
+                   target="_blank">
+                    <img src="/img/astronaut.jpg" class="card-img-top"
+                         alt="login-first">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Contenido no disponible
+                    </h5>
+                    <p class="card-text">
+                        Para acceder a este contenido debes ingresar
+                        tus credenciales primero
+                    </p>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public int TotalRowsForDocument { get; set; } = 0;
+    public int TotalRowsForBill { get; set; } = 0;
+
+    public bool checkStrictForDocument { get; set; }
+    public bool checkStrictForBill { get; set; }
+
+    public bool Toggle { get; set; }
+
+    public string ErrorMessage { get; set; }
+
+    public string SuccessMessage { get; set; }
+
+    private User User;
+
+    private List<Document?> lstDocument { get; set; }
+    private List<Bill?> lstBill { get; set; }
+
+    protected override void OnInitialized()
+    {
+        User = StateContainer.User;
+
+        if (User != null)
+        {
+            if (User.UserId != 0)
+            {
+                //Logged user
+                Toggle = true;
+
+                lstDocument = documentRepository.
+                GetAll(CancellationToken.None);
+
+                lstBill = billRepository.
+                GetAll(CancellationToken.None);
+
+                TotalRowsForDocument = lstDocument.Count();
+                TotalRowsForBill = lstBill.Count();
+            }
+            else
+            {
+                //Not logged user
+                Toggle = false;
+            }
+        }
+        else
+        {
+            //Impossible
+            Toggle = false;
+        }
+
+        base.OnInitialized();
+    }
+
+    private async void SearchTextForDocument(ChangeEventArgs args)
+    {
+        try
+        {
+            //Basic configuration
+            SuccessMessage = "";
+
+            lstDocument = documentRepository
+            .GetAllByFileName(args.Value.ToString(), 
+            checkStrictForDocument, 
+            CancellationToken.None);
+
+            TotalRowsForDocument = lstDocument.Count();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $@"Hubo un error. Intenta nuevamente.
+                            Mensaje de error: {ex.Message}";
+        }
+
+    }
+
+    private async void SearchTextForBill(ChangeEventArgs args)
+    {
+        try
+        {
+            //Basic configuration
+            SuccessMessage = "";
+
+            lstBill = billRepository
+            .GetAllByFileName(args.Value.ToString(), 
+            checkStrictForBill, 
+            CancellationToken.None);
+
+            TotalRowsForBill = lstBill.Count();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $@"Hubo un error. Intenta nuevamente.
+                            Mensaje de error: {ex.Message}";
+        }
+
+    }
+
+    private async void DeleteDocument(int documentId)
+    {
+        try
+        {
+            await documentRepository.DeleteByDocumentId(documentId, CancellationToken.None);
+
+            lstDocument = documentRepository.
+            GetAll(CancellationToken.None);
+
+            TotalRowsForDocument = lstDocument.Count();
+
+            //Re-render the page
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+
+            SuccessMessage = "Documento eliminado correctamente";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $@"Hubo un error. Intenta nuevamente.
+                            Mensaje de error: {ex.Message}";
+        }
+    }
+
+    private async void DeleteBill(int billId)
+    {
+        try
+        {
+            await billRepository.DeleteByBillId(billId, CancellationToken.None);
+
+            lstBill = billRepository.
+            GetAll(CancellationToken.None);
+
+            TotalRowsForBill = lstBill.Count();
+
+            //Re-render the page
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+
+            SuccessMessage = "Factura eliminada correctamente";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $@"Hubo un error. Intenta nuevamente.
+                            Mensaje de error: {ex.Message}";
+        }
+    }
+}

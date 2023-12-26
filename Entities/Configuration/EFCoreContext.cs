@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using OneCore.Entities.EntitiesConfiguration;
-using System.Runtime;
 
 namespace OneCore.Entities.Configuration
 {
@@ -25,10 +23,10 @@ namespace OneCore.Entities.Configuration
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new BillConfiguration());
-            modelBuilder.ApplyConfiguration(new CustomLoggerConfiguration());
-            modelBuilder.ApplyConfiguration(new DocumentConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new BillConfiguration());
+            modelBuilder.ApplyConfiguration(new DocumentConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomLoggerConfiguration());
 
             modelBuilder.Entity<User>().HasData(new User { 
                 UserId = 1,

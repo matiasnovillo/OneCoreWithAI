@@ -37,6 +37,7 @@
                                 <datalist id="datalistOptions">
                                     <option value="IA" />
                                     <option value="Interacción del usuario" />
+                                    <option value="Base de datos" />
                                     <option value="Excel" />
                                     <option value="PDF" />
                                     <option value="CSV" />
@@ -162,9 +163,20 @@
                                     <td>@StateContainer.User.Email</td>
                                 </tr>
                             }
-                            else
+                            else if (customLogger.InteractionType != "Base de datos")
                             {
                                 <tr class="table-success">
+                                    <td>@customLogger.CustomLoggerId</td>
+                                    <td>@customLogger.InteractionType</td>
+                                    <td>@customLogger.Description</td>
+                                    <td>@customLogger.DateTime.ToString("dd-MM-yyyy hh:mm")</td>
+                                    <!--TODO It has to say customLogger.User.Email-->
+                                    <td>@StateContainer.User.Email</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr class="table-warning">
                                     <td>@customLogger.CustomLoggerId</td>
                                     <td>@customLogger.InteractionType</td>
                                     <td>@customLogger.Description</td>

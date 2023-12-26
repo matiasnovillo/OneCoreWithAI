@@ -1,13 +1,8 @@
-﻿@page "/users"
-@using ClosedXML.Excel
-@using System.Data
-@using IronPdf
+﻿@page "/users/{UserId}"
 @using OneCore.Repositories
 @using OneCore.Entities
-@using System.Globalization
-@using CsvHelper
-@inject CustomLoggerRepository customLoggerRepository
 @using OneCore.Components.Shared
+@inject UserRepository userRepository
 @inject StateContainer StateContainer
 
 <PageTitle>Log - OneCore</PageTitle>
@@ -46,5 +41,8 @@ else
 }
 
 @code {
+    [Parameter]
+    public string UserId { get; set; }
+
     public bool Toggle { get; set; }
 }

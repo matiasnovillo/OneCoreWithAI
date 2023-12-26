@@ -1,4 +1,6 @@
-﻿using OneCore.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using OneCore.Entities;
+using System.Text.RegularExpressions;
 
 namespace OneCore.Repositories
 {
@@ -32,6 +34,68 @@ namespace OneCore.Repositories
         public async Task<bool> Remove(Document document, CancellationToken cancellationToken)
         {
             _context.Document.Remove(document);
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+
+        public List<Document?> GetAll(CancellationToken cancellationToken)
+        {
+            List<Document> lstDocument = [];
+
+            var GetAllQuery =
+                    from x in _context.Document
+                    select new
+                    {
+                        x.DocumentId,
+                        x.FileName,
+                    };
+
+            foreach (var x in GetAllQuery)
+            {
+                Document document = new()
+                {
+                    DocumentId = x.DocumentId,
+                    FileName = x.FileName,
+                };
+                lstDocument.Add(document);
+            }
+
+            return lstDocument;
+        }
+
+        public List<Document?> GetAllByFileName(string textToSearch,
+            bool strictSearch,
+            CancellationToken cancellationToken)
+        {
+            //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
+            string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+
+            List<Document> lstDocument = [];
+
+            var GetAllQuery = AsQueryable()
+                .Where(x => strictSearch ?
+                    words.All(word => x.FileName.Contains(word)) :
+                    words.Any(word => x.FileName.Contains(word)))
+                .ToList();
+
+            foreach (var x in GetAllQuery)
+            {
+                Document document = new()
+                {
+                    DocumentId = x.DocumentId,
+                    FileName = x.FileName
+                };
+                lstDocument.Add(document);
+            }
+
+            return lstDocument;
+        }
+
+        public async Task<bool> DeleteByDocumentId(int documentId, CancellationToken cancellationToken)
+        {
+            await AsQueryable()
+                .Where(d => d.DocumentId == documentId)
+                .ExecuteDeleteAsync();
+
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
     }

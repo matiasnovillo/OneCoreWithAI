@@ -7,6 +7,7 @@
 @using OneCore.Entities;
 @using OneCore.CommonFunctions;
 @inject BillRepository billRepository;
+@inject DocumentRepository documentRepository;
 @inject CustomLoggerRepository customLoggerRepository;
 @using OneCore.Components.Shared
 @inject StateContainer StateContainer
@@ -361,12 +362,24 @@ else
                 await billRepository.Add(Bill, CancellationToken.None);
 
                 //Log info
-                CustomLogger customLogger3 = new()
+                CustomLogger customLogger4 = new()
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
                         Description = $@"AWS Textract ha detectado que 
                                         {e.File.Name} es una factura",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository.Add(customLogger4, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger3 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Base de datos",
+                        Description = $@"Se ha guardado un nuevo registro en
+                                        la base de datos por una factura con
+                                        el nombre {e.File.Name} cargada",
                         UserId = User.UserId
                     };
                 await customLoggerRepository.Add(customLogger3, CancellationToken.None);
@@ -376,8 +389,21 @@ else
                 ProgressText = "El archivo es un documento...";
                 ProgressPercent = 86;
 
+
                 GoogleCloudNLPFunctions GoogleCloudNLPFunctions = new();
                 AzureTextAnalyticsFunctions AzureTextAnalyticsFunctions = new();
+
+                //Log info
+                CustomLogger customLogger4 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"Se hizo un análisis de sentimiento y
+                                        extracción de palabras claves del archivo
+                                        {e.File.Name}",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository.Add(customLogger4, CancellationToken.None);
 
                 List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
                 .ScanForSentiments(ScannedText);
@@ -388,7 +414,7 @@ else
                 foreach (string sentimentResult in lstResultsOfSentiments)
                 {
                     ListOfSentimentsHTML += $@"<li class=""list-group-item"">
-                                                    {sentimentResult}
+                                            {sentimentResult}
                                                 </li>";
                 }
 
@@ -396,9 +422,51 @@ else
                 foreach (string keyWordResult in lstResultsOfKeyWords)
                 {
                     ListOfKeyWordsHTML += $@"<li class=""list-group-item"">
-                                                    {keyWordResult}
+                                            {keyWordResult}
                                                 </li>";
                 }
+
+                //Save data in database
+                ProgressText = "Guardando datos en base de datos...";
+                ProgressPercent = 87;
+
+                string Sentiments = "";
+                foreach (string sentiment in lstResultsOfSentiments)
+                {
+                    Sentiments += $@"{sentiment}{Environment.NewLine}";
+                }
+
+                string KeyWords = "";
+                foreach (string keyWord in lstResultsOfKeyWords)
+                {
+                    KeyWords += $@"{keyWord}{Environment.NewLine}";
+                }
+
+                Document Document = new()
+                    {
+                        Description = KeyWords ?? "",
+                        Resume = KeyWords ?? "",
+                        Feeling = Sentiments ?? "",
+                        FileName = e.File.Name,
+                        FileURL = Path.Combine(Environment.CurrentDirectory,
+                                "Uploads",
+                                e.File.Name),
+                        UserId = StateContainer.User.UserId
+
+                    };
+                await documentRepository.Add(Document, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger3 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Base de datos",
+                        Description = $@"Se ha guardado un nuevo registro en
+                                        la base de datos por un documento con
+                                        el nombre {e.File.Name} cargado",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository.Add(customLogger3, CancellationToken.None);
 
                 ModalTitleToRender = $@"<i class=""fas fa-file""></i>
                                         Documento: Documento (no es factura)";
@@ -419,7 +487,7 @@ else
     </div>
 </div>";
                 //Log info
-                CustomLogger customLogger3 = new()
+                CustomLogger customLogger5 = new()
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
@@ -428,7 +496,7 @@ else
                                         (no es factura)",
                         UserId = User.UserId
                     };
-                await customLoggerRepository.Add(customLogger3, CancellationToken.None);
+                await customLoggerRepository.Add(customLogger5, CancellationToken.None);
             }
 
             ButtonText = "Ver análisis";
