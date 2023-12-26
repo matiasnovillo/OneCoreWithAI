@@ -324,10 +324,13 @@
                 return;
             }
 
+            //Encrypt password
+            string EncryptedPassword = new CommonFunctions.CommonFunctions().EncodeString(User.Password);
+
             //Get user by email and password
             User = userRepository.
             GetByEmailAndPassword(User.Email, 
-                User.Password, 
+                EncryptedPassword,
                 CancellationToken.None);
 
             //Next if is to quit null value from User

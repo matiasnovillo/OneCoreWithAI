@@ -1,6 +1,7 @@
-﻿
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Components.Forms;
 using OneCore.DTOs;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace OneCore.CommonFunctions
 {
@@ -24,12 +25,25 @@ namespace OneCore.CommonFunctions
 
                 FileStream.Close();
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            catch (Exception) { throw; }
             
             return true;
+        }
+
+        public string EncodeString(string stringToEncode)
+        {
+            try
+            {
+                UnicodeEncoding Encoder = new();
+
+                string EncodedString = Convert
+                    .ToBase64String(SHA512
+                    .HashData(Encoder
+                    .GetBytes(stringToEncode)));
+
+                return EncodedString;
+            }
+            catch (Exception) { throw; }
         }
 
         public string CreateHTMLTables(BillDTO billDTO)

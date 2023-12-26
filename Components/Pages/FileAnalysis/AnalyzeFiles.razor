@@ -203,6 +203,7 @@ else
             List<bool> lstIsProcessFinished = [];
             lstModalTitleToRender = [];
             lstModalBodyToRender = [];
+            CommonFunctions CommonFunctions = new();
 
             foreach (var file in e.GetMultipleFiles(e.FileCount))
             {
@@ -210,10 +211,10 @@ else
                 || file.Name.EndsWith(".png")
                 || file.Name.EndsWith(".jpg"))
                 {
-                    if (file.Size <= 1024L * 1024L)
+                    if (file.Size <= CommonFunctions.MaxFileSize)
                     {
                         //Basic configuration
-                        CommonFunctions CommonFunctions = new();
+                        
                         lstNameOfFilesForUpload?.Add(file.Name);
                         string cleanedFileName = Regex.Replace(file.Name, @"[^a-z]", "");
                         lstNameOfFilesForHTML?.Add(cleanedFileName);
