@@ -8,7 +8,8 @@ namespace OneCore.Repositories
     {
         protected readonly Entities.Configuration.EFCoreContext _context;
 
-        public CustomLoggerRepository(Entities.Configuration.EFCoreContext context)
+        public CustomLoggerRepository(
+            Entities.Configuration.EFCoreContext context)
         {
             _context = context;
         }
@@ -21,7 +22,7 @@ namespace OneCore.Repositories
         #region Queries
         public List<CustomLogger?> GetAll(CancellationToken cancellationToken)
         {
-            List<CustomLogger> lstCustomLogger = new();
+            List<CustomLogger?> lstCustomLogger = [];
 
             var GetAllQuery =
                     from x in _context.CustomLogger
@@ -56,9 +57,11 @@ namespace OneCore.Repositories
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
             string[] words = Regex
-                .Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+                .Replace(textToSearch
+                .Trim(), @"\s+", " ")
+                .Split(" ");
 
-            List<CustomLogger> lstCustomLogger = new();
+            List<CustomLogger?> lstCustomLogger = new();
 
             var GetAllQuery = AsQueryable()
                 .Where(x => strictSearch ?
@@ -68,7 +71,7 @@ namespace OneCore.Repositories
 
             foreach (var x in GetAllQuery)
             {
-                CustomLogger customLogger = new CustomLogger()
+                CustomLogger customLogger = new()
                 {
                     CustomLoggerId = x.CustomLoggerId,
                     InteractionType = x.InteractionType,
@@ -87,9 +90,12 @@ namespace OneCore.Repositories
             CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
-            string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+            string[] words = Regex
+                .Replace(textToSearch
+                .Trim(), @"\s+", " ")
+                .Split(" ");
 
-            List<CustomLogger> lstCustomLogger = new();
+            List<CustomLogger?> lstCustomLogger = [];
 
             var GetAllQuery = AsQueryable()
                 .Where(x => strictSearch ?
@@ -99,7 +105,7 @@ namespace OneCore.Repositories
 
             foreach (var x in GetAllQuery)
             {
-                CustomLogger customLogger = new CustomLogger()
+                CustomLogger customLogger = new()
                 {
                     CustomLoggerId = x.CustomLoggerId,
                     InteractionType = x.InteractionType,
@@ -118,7 +124,8 @@ namespace OneCore.Repositories
         public async Task<bool> Add(CustomLogger customLogger, 
             CancellationToken cancellationToken)
         {
-            await _context.CustomLogger.AddAsync(customLogger, cancellationToken);
+            await _context.CustomLogger
+                .AddAsync(customLogger, cancellationToken);
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
         #endregion

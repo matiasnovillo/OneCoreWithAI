@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OneCore.Entities;
 using System.Text.RegularExpressions;
 
@@ -29,7 +28,7 @@ namespace OneCore.Repositories
 
         public List<Document?> GetAll(CancellationToken cancellationToken)
         {
-            List<Document> lstDocument = [];
+            List<Document?> lstDocument = [];
 
             var GetAllQuery =
                     from x in _context.Document
@@ -57,9 +56,12 @@ namespace OneCore.Repositories
             CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
-            string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+            string[] words = Regex
+                .Replace(textToSearch
+                .Trim(), @"\s+", " ")
+                .Split(" ");
 
-            List<Document> lstDocument = [];
+            List<Document?> lstDocument = [];
 
             var GetAllQuery = AsQueryable()
                 .Where(x => strictSearch ?
@@ -85,7 +87,8 @@ namespace OneCore.Repositories
         public async Task<bool> Add(Document document, 
             CancellationToken cancellationToken)
         {
-            await _context.Document.AddAsync(document, cancellationToken);
+            await _context.Document
+                .AddAsync(document, cancellationToken);
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
         public async Task<bool> Update(Document document, 

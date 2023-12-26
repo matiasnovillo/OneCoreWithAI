@@ -51,7 +51,9 @@
                                 </div>
                             </div>
                         </div>
-                        <h6 class="mt-2"><b>Cantidad de facturas: @TotalRowsForBill</b></h6>
+                        <h6 class="mt-2">
+                            <b>Cantidad de facturas: @TotalRowsForBill</b>
+                        </h6>
                         <!--Table-->
                         <table class="table table-striped table-hover table-bordered table-responsive mt-4">
                             <thead>
@@ -63,13 +65,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (Bill bill in lstBill)
+                                @foreach (Bill? bill in lstBill)
                                 {
                                     <tr>
-                                        <td>@bill.BillId</td>
-                                        <td>@bill.FileName</td>
-                                        <td>@bill.ClientName</td>
-                                        <td>@bill.ProviderName</td>
+                                        <td>@bill?.BillId</td>
+                                        <td>@bill?.FileName</td>
+                                        <td>@bill?.ClientName</td>
+                                        <td>@bill?.ProviderName</td>
                                         <td>
                                             <div class="nav-item">
                                                 <button class="btn btn-sm btn-outline-danger"
@@ -79,7 +81,7 @@
                                             </div>
                                             <div class="nav-item mt-2">
                                                 <a class="btn btn-sm btn-outline-info"
-                                                   href="files/bill/@bill.BillId">
+                                                   href="files/bill/@bill?.BillId">
                                                     <span class="fas fa-pen" aria-hidden="true"></span>
                                                 </a>
                                             </div>
@@ -104,17 +106,19 @@
                         <div class="row">
                             <div class="col-4">
                                 <!--Searchbox-->
-                                <input type="search" @oninput="SearchTextForDocument"
-                                       class="form-control"
-                                       placeholder="Buscar documento por nombre de archivo..." />
+                                <input type="search" 
+                                    @oninput="SearchTextForDocument"
+                                    class="form-control"
+                                    placeholder="Buscar documento por nombre de archivo..." />
                                 <br />
                                 <!--Búsqueda estricta-->
                                 <div class="mb-3">
                                     <h6><b>Búsqueda estricta o laxa</b></h6>
-                                    <input type="checkbox" class="mx-4"
-                                           id="strict-search"
-                                           name="strict-search"
-                                           @bind="checkStrictForDocument" />
+                                    <input type="checkbox" 
+                                        class="mx-4"
+                                        id="strict-search"
+                                        name="strict-search"
+                                        @bind="checkStrictForDocument" />
                                     <label for="strict-search">
                                         Búsqueda estricta
                                     </label>
@@ -122,7 +126,9 @@
                             </div>
                         </div>
                         <!--Table-->
-                        <h6><b>Cantidad de documentos: @TotalRowsForDocument</b></h6>
+                        <h6>
+                            <b>Cantidad de documentos: @TotalRowsForDocument</b>
+                        </h6>
                         <table class="table table-striped table-hover table-bordered table-responsive mt-4">
                             <thead>
                                 <tr>
@@ -131,11 +137,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (Document document in lstDocument)
+                                @foreach (Document? document in lstDocument)
                                 {
                                     <tr>
-                                        <td>@document.DocumentId</td>
-                                        <td>@document.FileName</td>
+                                        <td>@document?.DocumentId</td>
+                                        <td>@document?.FileName</td>
                                         <td>
                                             <div class="nav-item">
                                                 <button class="btn btn-sm btn-outline-danger"
@@ -145,7 +151,7 @@
                                             </div>
                                             <div class="nav-item mt-2">
                                                 <a class="btn btn-sm btn-outline-info"
-                                                   href="files/document/@document.DocumentId">
+                                                   href="files/document/@document?.DocumentId">
                                                     <span class="fas fa-pen" aria-hidden="true"></span>
                                                 </a>
                                             </div>
@@ -175,14 +181,14 @@ else
 
     public bool Toggle { get; set; }
 
-    public string ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; } = "";
 
-    public string SuccessMessage { get; set; }
+    public string SuccessMessage { get; set; } = "";
 
-    private User User;
+    private User? User;
 
-    private List<Document?> lstDocument { get; set; }
-    private List<Bill?> lstBill { get; set; }
+    private List<Document?>? lstDocument { get; set; }
+    private List<Bill?>? lstBill { get; set; }
 
     protected override void OnInitialized()
     {
@@ -219,7 +225,7 @@ else
         base.OnInitialized();
     }
 
-    private async void SearchTextForDocument(ChangeEventArgs args)
+    private void SearchTextForDocument(ChangeEventArgs args)
     {
         try
         {
@@ -241,7 +247,7 @@ else
 
     }
 
-    private async void SearchTextForBill(ChangeEventArgs args)
+    private void SearchTextForBill(ChangeEventArgs args)
     {
         try
         {
@@ -267,7 +273,8 @@ else
     {
         try
         {
-            await documentRepository.DeleteByDocumentId(documentId, CancellationToken.None);
+            await documentRepository
+            .DeleteByDocumentId(documentId, CancellationToken.None);
 
             lstDocument = documentRepository.
             GetAll(CancellationToken.None);
@@ -297,10 +304,10 @@ else
 
             TotalRowsForBill = lstBill.Count();
 
+            SuccessMessage = "Factura eliminada correctamente";
+
             //Re-render the page
             await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
-
-            SuccessMessage = "Factura eliminada correctamente";
         }
         catch (Exception ex)
         {

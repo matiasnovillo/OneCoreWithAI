@@ -26,7 +26,7 @@ namespace OneCore.Repositories
 
         public List<User?> GetAll(CancellationToken cancellationToken)
         {
-            List<User> lstUser = new();
+            List<User?> lstUser = [];
 
             var GetAllQuery =
                     from x in _context.User
@@ -39,7 +39,7 @@ namespace OneCore.Repositories
 
             foreach (var x in GetAllQuery)
             {
-                User user = new User()
+                User user = new()
                 {
                     UserId = x.UserId,
                     Email = x.Email,
@@ -66,9 +66,12 @@ namespace OneCore.Repositories
             CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
-            string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+            string[] words = Regex
+                .Replace(textToSearch
+                .Trim(), @"\s+", " ")
+                .Split(" ");
 
-            List<User> lstUser = [];
+            List<User?> lstUser = [];
 
             var GetAllQuery = AsQueryable()
                 .Where(x => strictSearch ?
@@ -78,7 +81,7 @@ namespace OneCore.Repositories
 
             foreach (var x in GetAllQuery)
             {
-                User user = new User()
+                User user = new()
                 {
                     UserId = x.UserId,
                     Email = x.Email,

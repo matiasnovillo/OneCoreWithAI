@@ -1,5 +1,4 @@
-﻿using CsvHelper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OneCore.Entities;
 using System.Text.RegularExpressions;
 
@@ -23,12 +22,13 @@ namespace OneCore.Repositories
         public Bill? GetById(int billId, 
             CancellationToken cancellationToken)
         {
-            return _context.Bill.FirstOrDefault(b => b.BillId == billId);
+            return _context.Bill
+                .FirstOrDefault(b => b.BillId == billId);
         }
 
         public List<Bill?> GetAll(CancellationToken cancellationToken)
         {
-            List<Bill> lstBill = [];
+            List<Bill?> lstBill = [];
 
             var GetAllQuery =
                     from x in _context.Bill
@@ -61,9 +61,11 @@ namespace OneCore.Repositories
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
             string[] words = Regex
-                .Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+                .Replace(textToSearch
+                .Trim(), @"\s+", " ")
+                .Split(" ");
 
-            List<Bill> lstBill = [];
+            List<Bill?> lstBill = [];
 
             var GetAllQuery = AsQueryable()
                 .Where(x => strictSearch ?

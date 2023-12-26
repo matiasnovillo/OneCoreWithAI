@@ -1,5 +1,4 @@
 ﻿@page "/files/document/{DocumentId:int}"
-
 @using OneCore.Repositories
 @using OneCore.Entities
 @using OneCore.Components.Shared
@@ -17,7 +16,8 @@
         <div class="card mb-3">
             <div class="card-header">
                 <h3><i class="fas fa-file"></i> Editar documento</h3>
-                <NavLink class="btn btn-outline-info text-white mt-3" href="files">
+                <NavLink class="btn btn-outline-info text-white mt-3" 
+                    href="files">
                     <span class="fas fa-chevron-left" aria-hidden="true"></span>&nbsp;Volver
                 </NavLink>
             </div>
@@ -117,12 +117,12 @@ else
 
     public bool Toggle { get; set; }
 
-    public string DownloadButton { get; set; }
+    public string DownloadButton { get; set; } = "";
 
     public string MessageForLoginForm { get; set; } = "";
 
     [SupplyParameterFromForm]
-    public Document Document { get; set; }
+    public Document? Document { get; set; }
 
     public User? User { get; set; }
 
@@ -186,7 +186,7 @@ else
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha modificado datos
+                    Description = $@"El usuario {User?.Email} ha modificado datos
                                     del documento con ID: {Document.DocumentId}",
                     UserId = User.UserId
                 };

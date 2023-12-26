@@ -6,9 +6,9 @@
 @using OneCore.Repositories;
 @using OneCore.Entities;
 @using OneCore.CommonFunctions;
+@using OneCore.Components.Shared
 @inject BillRepository billRepository;
 @inject CustomLoggerRepository customLoggerRepository;
-@using OneCore.Components.Shared
 @inject StateContainer StateContainer
 
 <PageTitle>Carga de factura customizada - OneCore</PageTitle>
@@ -34,8 +34,9 @@
                     factura totalmente customizada creada por una empresa
                     real que provee servicios de comunicación.
                     Puedes descargar la
-                    <a class="btn btn-link" download
-                       href="Downloads/FilesToAnalyze/Textract-Example-Custom-Bill.pdf">
+                    <a class="btn btn-link" 
+                        download
+                        href="Downloads/FilesToAnalyze/Textract-Example-Custom-Bill.pdf">
                         factura customizada
                         <i class="fas fa-download"></i>
                     </a>
@@ -69,8 +70,10 @@
                 <p>@ProgressText</p>
                 <div class="@progressCss">
                     <div class="progress-bar progress-bar-striped progress-bar-animated @ProgressBarColour"
-                         role="progressbar" style="width:@progressWidthStyle"
-                         area-valuenow="@ProgressPercent" aria-valuemin="0"
+                         role="progressbar" 
+                         style="width:@progressWidthStyle"
+                         area-valuenow="@ProgressPercent" 
+                         aria-valuemin="0"
                          aria-valuemax="100">
                     </div>
                 </div>
@@ -133,7 +136,7 @@ else
     public string ProgressText { get; set; } = "";
     public string ProgressBarColour { get; set; } = "bg-info";
 
-    private User User;
+    private User? User;
 
     protected override void OnInitialized()
     {

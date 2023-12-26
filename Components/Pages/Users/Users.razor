@@ -61,22 +61,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (User user in lstUser)
+                        @foreach (User? user in lstUser)
                         {
                             <tr>
-                                <td>@user.UserId</td>
-                                <td>@user.Email</td>
-                                <td>@user.Password</td>
+                                <td>@user?.UserId</td>
+                                <td>@user?.Email</td>
+                                <td>@user?.Password</td>
                                 <td>
                                     <div class="nav-item">
                                         <button class="btn btn-sm btn-outline-danger"
-                                                onclick=@(() => Delete(@user.UserId))>
+                                                onclick=@(() => Delete(@user!.UserId))>
                                             <span class="fas fa-trash" aria-hidden="true"></span>
                                         </button>
                                     </div>
                                     <div class="nav-item mt-2">
                                         <a class="btn btn-sm btn-outline-info" 
-                                            href="users/@user.UserId">
+                                            href="users/@user?.UserId">
                                             <span class="fas fa-pen" aria-hidden="true"></span>
                                         </a>
                                     </div>
@@ -102,14 +102,14 @@ else
 
     public bool Toggle { get; set; }
 
-    public string TextToSearch { get; set; }
+    public string TextToSearch { get; set; } = "";
 
-    public string ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; } = "";
 
-    public string SuccessMessage { get; set; }
+    public string SuccessMessage { get; set; } = "";
 
-    private User User;
-    private List<User?> lstUser { get; set; }
+    private User? User;
+    private List<User?>? lstUser { get; set; }
 
     protected override void OnInitialized()
     {
@@ -140,15 +140,15 @@ else
         base.OnInitialized();
     }
 
-    private async void SearchText(ChangeEventArgs args)
+    private void SearchText(ChangeEventArgs args)
     {
         try
         {
             //Basic configuration
             SuccessMessage = "";
 
-            lstUser = userRepository.
-            GetAllByEmail(args.Value.ToString(), checkStrict, CancellationToken.None);
+            lstUser = userRepository
+            .GetAllByEmail(args.Value.ToString(), checkStrict, CancellationToken.None);
 
             TotalRows = lstUser.Count();
         }

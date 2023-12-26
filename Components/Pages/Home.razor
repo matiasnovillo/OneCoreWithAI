@@ -1,9 +1,9 @@
 ﻿@page "/"
 @using OneCore.Entities
 @using OneCore.Repositories
+@using OneCore.Components.Shared
 @inject UserRepository userRepository;
 @inject CustomLoggerRepository customLoggerRepository;
-@using OneCore.Components.Shared
 @inject StateContainer StateContainer
 
 <PageTitle>Home - OneCore</PageTitle>
@@ -40,7 +40,7 @@
                                     <i class="fas fa-envelope"></i> 
                                     Email
                                 </label>
-                                <InputText @bind-Value="User!.Email" 
+                                <InputText @bind-Value="User.Email" 
                                 type="text" id="email" 
                                 class="form-control" 
                                 placeholder="user@example.com" />
@@ -77,7 +77,7 @@
                         </h2>
                         <ul class="list-group">
                             <li class="list-group-item">
-                                Email: @User.Email
+                                Email: @User?.Email
                             </li>
                             <li class="list-group-item">
                                 Contraseña: ****
@@ -242,6 +242,7 @@
     public User? User { get; set; }
 
     public string MessageForLoginForm { get; set; } = "";
+
     public bool Toggle { get; set; } = false;
 
     protected override void OnInitialized()
@@ -300,7 +301,8 @@
                                         al sistema",
                         UserId = User.UserId
                     };
-                await customLoggerRepository.Add(customLogger, CancellationToken.None);
+                await customLoggerRepository
+                .Add(customLogger, CancellationToken.None);
             }
             else
             {
@@ -317,7 +319,8 @@
                                         sistema pero no pudo",
                         UserId = 0
                     };
-                await customLoggerRepository.Add(customLogger, CancellationToken.None);
+                await customLoggerRepository
+                .Add(customLogger, CancellationToken.None);
             }
         }
         catch (Exception ex)
@@ -332,6 +335,7 @@
     {
         User = new User();
         StateContainer.User = new User();
+
         //Show login form
         Toggle = false;
     }

@@ -1,5 +1,4 @@
 ﻿@page "/files/bill/{BillId:int}"
-
 @using OneCore.Repositories
 @using OneCore.Entities
 @using OneCore.Components.Shared
@@ -17,8 +16,10 @@
         <div class="card mb-3">
             <div class="card-header">
                 <h3><i class="fas fa-file"></i> Editar factura</h3>
-                <NavLink class="btn btn-outline-info text-white mt-3" href="files">
-                    <span class="fas fa-chevron-left" aria-hidden="true"></span>&nbsp;Volver
+                <NavLink class="btn btn-outline-info text-white mt-3" 
+                    href="files">
+                    <span class="fas fa-chevron-left" aria-hidden="true"></span>
+                    &nbsp;Volver
                 </NavLink>
             </div>
             <div class="card-body">
@@ -144,12 +145,12 @@ else
 
     public bool Toggle { get; set; }
 
-    public string DownloadButton { get; set; }
+    public string DownloadButton { get; set; } = "";
 
     public string MessageForLoginForm { get; set; } = "";
 
     [SupplyParameterFromForm]
-    public Bill Bill { get; set; }
+    public Bill? Bill { get; set; }
 
     public User? User { get; set; }
 
@@ -168,7 +169,7 @@ else
                 Bill = billRepository
                 .GetById(BillId, CancellationToken.None);
 
-                DownloadButton = $@"Uploads\{Bill.FileURL.Substring(Bill.FileURL.LastIndexOf('\\') + 1)}";
+                DownloadButton = $@"Uploads\{Bill?.FileURL.Substring(Bill.FileURL.LastIndexOf('\\') + 1)}";
             }
             else
             {
@@ -207,7 +208,7 @@ else
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha modificado datos
+                    Description = $@"El usuario {User?.Email} ha modificado datos
                                     de la factura con ID: {Bill.BillId}",
                     UserId = User.UserId
                 };
