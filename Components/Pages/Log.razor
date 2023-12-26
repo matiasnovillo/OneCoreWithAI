@@ -30,8 +30,10 @@
                         <div class="row">
                             <div class="col-4">
                                 <!--Searchbox-->
-                                <input type="search" @oninput="SearchText" class="form-control"
-                                       list="datalistOptions" placeholder="Buscar..." />
+                                <input type="search" @oninput="SearchText" 
+                                    class="form-control"
+                                    list="datalistOptions" 
+                                    placeholder="Buscar..." />
                                 <datalist id="datalistOptions">
                                     <option value="IA" />
                                     <option value="Interacción del usuario" />
@@ -45,23 +47,32 @@
                                 <!--Búsqueda estricta-->
                                 <div class="mb-3">
                                     <h6><b>Búsqueda estricta o laxa</b></h6>
-                                    <input type="checkbox" class="mx-4" id="strict-search"
-                                           name="strict-search" @bind="checkStrict" />
-                                    <label for="strict-search">Búsqueda estricta</label>
+                                    <input type="checkbox" class="mx-4" 
+                                        id="strict-search"
+                                        name="strict-search" 
+                                        @bind="checkStrict" />
+                                    <label for="strict-search">
+                                        Búsqueda estricta
+                                    </label>
                                 </div>
                                 <!--Radiobuttons-->
                                 <h6><b>Buscar por columna</b></h6>
                                 <input type="radio" id="interactiontype"
                                        checked="@(radiobuttonSearchType == "interactiontype")"
                                        @onchange="@(() => radiobuttonSearchType = "interactiontype")"
-                                       name="search-type" value="interactiontype"
+                                       name="search-type" 
+                                       value="interactiontype"
                                        class="mx-4">
-                                <label for="interactiontype">Tipo de interacción</label><br>
+                                <label for="interactiontype">
+                                    Tipo de interacción
+                                </label>
+                                <br>
 
                                 <input type="radio" id="description"
                                        checked="@(radiobuttonSearchType == "description")"
                                        @onchange="@(() => radiobuttonSearchType = "description")"
-                                       name="search-type" value="description"
+                                       name="search-type" 
+                                       value="description"
                                        class="mx-4">
                                 <label for="css">Descripción</label><br>
                             </div>
@@ -69,17 +80,20 @@
                                 <div class="row">
                                     <div class="d-flex justify-content-end">
                                         <!--Export buttons-->
-                                        <button type="button" @onclick="ConvertToExcel"
+                                        <button type="button" 
+                                                @onclick="ConvertToExcel"
                                                 class="btn btn-outline-info ml-4 mb-4">
                                             <i class="fas fa-file"></i>
                                             Exportar a Excel
                                         </button>
-                                        <button type="button" @onclick="ConvertToCSV"
+                                        <button type="button" 
+                                                @onclick="ConvertToCSV"
                                                 class="btn btn-outline-warning mb-4 mx-3">
                                             <i class="fas fa-file"></i>
                                             Exportar a CSV
                                         </button>
-                                        <button type="button" @onclick="ConvertToPDF"
+                                        <button type="button" 
+                                                @onclick="ConvertToPDF"
                                                 class="btn btn-outline-success mb-4">
                                             <i class="fas fa-file"></i>
                                             Exportar a PDF
@@ -91,21 +105,27 @@
                                         <!--Download buttons-->
                                         @if (ShowDownloadButtonForExcel)
                                         {
-                                            <a class="btn btn-info mb-4" href="@DownloadPathForExcel" download>
+                                            <a class="btn btn-info mb-4" 
+                                                href="@DownloadPathForExcel" 
+                                                download>
                                                 <i class="fas fa-download"></i>
                                                 Descargar
                                             </a>
                                         }
                                         @if (ShowDownloadButtonForCSV)
                                         {
-                                            <a class="btn btn-warning mb-4 mx-3" href="@DownloadPathForCSV" download>
+                                            <a class="btn btn-warning mb-4 mx-3" 
+                                                href="@DownloadPathForCSV" 
+                                                download>
                                                 <i class="fas fa-download"></i>
                                                 Descargar
                                             </a>
                                         }
                                         @if (ShowDownloadButtonForPDF)
                                         {
-                                            <a class="btn btn-success mb-4" href="@DownloadPathForPDF" download>
+                                            <a class="btn btn-success mb-4" 
+                                                href="@DownloadPathForPDF" 
+                                                download>
                                                 <i class="fas fa-download"></i>
                                                 Descargar
                                             </a>
@@ -223,7 +243,8 @@ else
             {
                 //Logged user
                 Toggle = true;
-                lstCustomLogger = customLoggerRepository.GetAll(CancellationToken.None);
+                lstCustomLogger = customLoggerRepository.
+                GetAll(CancellationToken.None);
                 TotalRows = lstCustomLogger.Count();
             }
             else
@@ -245,11 +266,13 @@ else
     {
         if (radiobuttonSearchType == "interactiontype")
         {
-            lstCustomLogger = customLoggerRepository.GetAllByInteractionType(args.Value.ToString(), checkStrict, CancellationToken.None);
+            lstCustomLogger = customLoggerRepository.
+            GetAllByInteractionType(args.Value.ToString(), checkStrict, CancellationToken.None);
         }
         else
         {
-            lstCustomLogger = customLoggerRepository.GetAllByDescription(args.Value.ToString(), checkStrict, CancellationToken.None);
+            lstCustomLogger = customLoggerRepository.
+            GetAllByDescription(args.Value.ToString(), checkStrict, CancellationToken.None);
         }
         TotalRows = lstCustomLogger.Count();
     }
@@ -298,7 +321,8 @@ else
             dtCustomLoggerCopy.Columns.Add(dtColumn5);
             #endregion
 
-            lstCustomLogger = customLoggerRepository.GetAll(CancellationToken.None);
+            lstCustomLogger = customLoggerRepository.
+            GetAll(CancellationToken.None);
 
             foreach (CustomLogger? customLogger in lstCustomLogger)
             {
@@ -326,14 +350,17 @@ else
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha exportado a Excel la tabla de logging",
+                    Description = $@"El usuario {User.Email} ha exportado a
+                                    Excel la tabla de logging",
                     UserId = User.UserId
                 };
-            await customLoggerRepository.Add(customLogger2, CancellationToken.None);
+            await customLoggerRepository.
+            Add(customLogger2, CancellationToken.None);
         }
         catch (Exception ex)
         {
-            ErrorMessage = $@"Hubo un error en la conversión. Mensaje del error: {ex.Message}";
+            ErrorMessage = $@"Hubo un error en la conversión. 
+                            Mensaje del error: {ex.Message}";
         }
     }
 
@@ -344,12 +371,14 @@ else
             //Set initial state
             ErrorMessage = "";
 
-            List<CustomLogger?> lstCustomLogger = customLoggerRepository.GetAll(CancellationToken.None);
+            List<CustomLogger?> lstCustomLogger = customLoggerRepository
+            .GetAll(CancellationToken.None);
 
             DownloadPathForCSV = $@"wwwroot/Downloads/CSVFiles/{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff")}.csv";
 
             using (var Writer = new StreamWriter(DownloadPathForCSV))
-            using (var CsvWriter = new CsvWriter(Writer, CultureInfo.InvariantCulture))
+            using (var CsvWriter = new CsvWriter(Writer, 
+                CultureInfo.InvariantCulture))
             {
                 CsvWriter.WriteRecords(lstCustomLogger);
             }
@@ -364,14 +393,17 @@ else
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha exportado a CSV la tabla de logging",
+                    Description = $@"El usuario {User.Email} ha exportado a 
+                                    CSV la tabla de logging",
                     UserId = User.UserId
                 };
-            await customLoggerRepository.Add(customLogger, CancellationToken.None);
+            await customLoggerRepository
+            .Add(customLogger, CancellationToken.None);
         }
         catch (Exception ex)
         {
-            ErrorMessage = $@"Hubo un error en la conversión. Mensaje del error: {ex.Message}";
+            ErrorMessage = $@"Hubo un error en la conversión. 
+                            Mensaje del error: {ex.Message}";
         }
     }
 
@@ -384,7 +416,8 @@ else
 
             var Renderer = new HtmlToPdf();
             string RowsAsHTML = "";
-            List<CustomLogger?> lstCustomLogger = customLoggerRepository.GetAll(CancellationToken.None);
+            List<CustomLogger?> lstCustomLogger = customLoggerRepository
+            .GetAll(CancellationToken.None);
             DownloadPathForPDF = $@"wwwroot/Downloads/PDFFiles/{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff")}.pdf";
 
             foreach (CustomLogger? customLogger in lstCustomLogger)
@@ -459,14 +492,17 @@ else
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha exportado a PDF la tabla de logging",
+                    Description = $@"El usuario {User.Email} ha exportado a 
+                                    PDF la tabla de logging",
                     UserId = User.UserId
                 };
-            await customLoggerRepository.Add(customLogger2, CancellationToken.None);
+            await customLoggerRepository
+            .Add(customLogger2, CancellationToken.None);
         }
         catch (Exception ex)
         {
-            ErrorMessage = $@"Hubo un error en la conversión. Mensaje del error: {ex.Message}";
+            ErrorMessage = $@"Hubo un error en la conversión. 
+                            Mensaje del error: {ex.Message}";
         }
         
     }

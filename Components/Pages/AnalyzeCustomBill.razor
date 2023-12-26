@@ -188,7 +188,9 @@ else
         //Basic configuration
         CommonFunctions CommonFunctions = new();
 
-        if (e.File.Name.EndsWith(".pdf") || e.File.Name.EndsWith(".png") || e.File.Name.EndsWith(".jpg"))
+        if (e.File.Name.EndsWith(".pdf") 
+        || e.File.Name.EndsWith(".png") 
+        || e.File.Name.EndsWith(".jpg"))
         {
             if (e.File.Size <= CommonFunctions.MaxFileSize)
             {
@@ -196,12 +198,15 @@ else
             }
             else
             {
-                ErrorMessage = $@"<i class=""fas fa-exclamation""></i> Solo se permiten archivos con un peso máximo de 3MB";
+                ErrorMessage = $@"<i class=""fas fa-exclamation""></i> 
+                                Solo se permiten archivos con un peso 
+                                máximo de 3MB";
             }
         }
         else
         {
-            ErrorMessage = $@"<i class=""fas fa-exclamation""></i> Solo se aceptan archivos PDF, PNG o JPG";
+            ErrorMessage = $@"<i class=""fas fa-exclamation""></i> 
+                            Solo se aceptan archivos PDF, PNG o JPG";
         }
     }
 
@@ -215,6 +220,7 @@ else
             ErrorMessage = "";
             DisplayProgress = true;
             CommonFunctions CommonFunctions = new();
+            AWSTextractFunctions AWSTextractFunctions = new();
 
             //Save file in local server
             ProgressText = "Subiendo archivo al servidor...";
@@ -224,13 +230,15 @@ else
             //Save file in AWS S3 storage
             ProgressText = "Subiendo archivo a AWS S3...";
             ProgressPercent = 81;
-            CommonFunctions.SaveFileInAWSS3(e.File.Name);
+            AWSTextractFunctions.SaveFileInAWSS3(e.File.Name);
 
 
             //Scan file located in AWS S3 storage, to get text
             ProgressText = "Analizando archivo con AWS Textract...";
             ProgressPercent = 82;
-            List<KeyValuePair<string, string>> lstResults = await CommonFunctions.ScanFileForLinesAndWordsCustom(e.File.Name);
+            List<KeyValuePair<string, string>> lstResults = 
+            await AWSTextractFunctions.
+            ScanFileForLinesAndWordsCustom(e.File.Name);
 
             ProgressText = "El archivo es una factura customizada...";
             ProgressPercent = 84;
@@ -261,19 +269,34 @@ else
                                     where x.Key.Trim() == "BillingTotal"
                                     select x.Value).FirstOrDefault();
 
-            ModalTitleToRender = $@"<i class=""fas fa-file""></i> Documento: Factura";
+            ModalTitleToRender = $@"<i class=""fas fa-file""></i> 
+                                    Documento: Factura";
 
             ModalBodyToRender = $@"
 <div class=""container"">
 <ul class=""list-group mb-4"">
-    <li class=""list-group-item""><b>Nombre del cliente:</b> {ClientName}</li>
-    <li class=""list-group-item""><b>Dirección del cliente:</b> {ClientAddress}</li>
-    <li class=""list-group-item""><b>Nombre del proveedor:</b> {ProviderName}</li>
-    <li class=""list-group-item""><b>Dirección del proveedor:</b> {ProviderAddress}</li>
-    <li class=""list-group-item""><b>Nro. de factura:</b> {BillingNumber}</li>
-    <li class=""list-group-item""><b>Fecha de la factura:</b> {BillingDate}</li>
-    <li class=""list-group-item""><b>Total de la factura:</b> {BillingTotal}</li>
-</ul>
+        <li class=""list-group-item"">
+            <b>Nombre del cliente:</b> {ClientName}
+        </li>
+        <li class=""list-group-item"">
+            <b>Dirección del cliente:</b> {ClientAddress}
+        </li>
+        <li class=""list-group-item"">
+            <b>Nombre del proveedor:</b> {ProviderName}
+        </li>
+        <li class=""list-group-item"">
+            <b>Dirección del proveedor:</b> {ProviderAddress}
+        </li>
+        <li class=""list-group-item"">
+            <b>Nro. de factura:</b> {BillingNumber}
+        </li>
+        <li class=""list-group-item"">
+            <b>Fecha de la factura:</b> {BillingDate}
+        </li>
+        <li class=""list-group-item"">
+            <b>Total de la factura:</b> {BillingTotal}
+        </li>
+    </ul>
 <p>Tabla no disponible</p>
 </div>";
 

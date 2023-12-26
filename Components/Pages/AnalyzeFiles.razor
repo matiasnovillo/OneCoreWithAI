@@ -38,9 +38,10 @@
                         documento
                         <i class="fas fa-download"></i>
                     </a>
-                    para que puedas descargar y probar. Para ayudar al análisis por parte
-                    de AWS Textract, se detecta que el archivo es una factura si lee las
-                    palabras "i.v.a" o "iva", tanto en mayúsculas como en minúsculas.
+                    para que puedas descargar y probar. Para ayudar al análisis 
+                    por parte de AWS Textract, se detecta que el archivo es 
+                    una factura si lee las palabras "i.v.a" o "iva", tanto en 
+                    mayúsculas como en minúsculas.
                 </div>
                 <div class="alert alert-warning mb-5" role="alert">
                     <i class="fas fa-exclamation"></i>
@@ -187,7 +188,9 @@ else
         //Basic configuration
         CommonFunctions CommonFunctions = new();
 
-        if (e.File.Name.EndsWith(".pdf") || e.File.Name.EndsWith(".png") || e.File.Name.EndsWith(".jpg"))
+        if (e.File.Name.EndsWith(".pdf") 
+        || e.File.Name.EndsWith(".png") 
+        || e.File.Name.EndsWith(".jpg"))
         {
             if (e.File.Size <= CommonFunctions.MaxFileSize)
             {
@@ -195,16 +198,15 @@ else
             }
             else
             {
-                ErrorMessage = $@"
-<i class=""fas fa-exclamation""></i> 
-Solo se permiten archivos con un peso máximo de 3MB";
+                ErrorMessage = $@" <i class=""fas fa-exclamation""></i> 
+                                Solo se permiten archivos con un peso 
+                                máximo de 3MB";
             }
         }
         else
         {
-            ErrorMessage = $@"
-<i class=""fas fa-exclamation""></i>
-Solo se aceptan archivos PDF, PNG o JPG";
+            ErrorMessage = $@"<i class=""fas fa-exclamation""></i>
+                            Solo se aceptan archivos PDF, PNG o JPG";
         }
     }
 
@@ -217,11 +219,13 @@ Solo se aceptan archivos PDF, PNG o JPG";
             ProgressBarColour = "bg-info";
             ErrorMessage = "";
             DisplayProgress = true;
+            CommonFunctions CommonFunctions = new();
+            AWSTextractFunctions AWSTextractFunctions = new();
 
             //Save file in local server
             ProgressText = "Subiendo archivo al servidor...";
             ProgressPercent = 80;
-            CommonFunctions CommonFunctions = new();
+
             await CommonFunctions.SaveFileInLocalServer(e);
 
             //Log info
@@ -229,24 +233,26 @@ Solo se aceptan archivos PDF, PNG o JPG";
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha subido el archivo {e.File.Name} 
-                                    para analizar, al servidor local",
+                    Description = $@"El usuario {User.Email} ha subido el 
+                                    archivo {e.File.Name} para analizar, 
+                                    al servidor local",
                     UserId = User.UserId
                 };
             await customLoggerRepository.Add(customLogger, CancellationToken.None);
-            
+
             //Save file in AWS S3 storage
             ProgressText = "Subiendo archivo a AWS S3...";
             ProgressPercent = 81;
-            CommonFunctions.SaveFileInAWSS3(e.File.Name);
+            AWSTextractFunctions.SaveFileInAWSS3(e.File.Name);
 
             //Log info
             CustomLogger customLogger2 = new()
                 {
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
-                    Description = $@"El usuario {User.Email} ha subido el archivo {e.File.Name} 
-                                    para analizar, a AWS S3",
+                    Description = $@"El usuario {User.Email} ha subido el 
+                                    archivo {e.File.Name} para analizar, 
+                                    a AWS S3",
                     UserId = User.UserId
                 };
             await customLoggerRepository.Add(customLogger2, CancellationToken.None);
@@ -254,7 +260,7 @@ Solo se aceptan archivos PDF, PNG o JPG";
             //Scan file located in AWS S3 storage, to get text
             ProgressText = "Analizando archivo con AWS Textract...";
             ProgressPercent = 82;
-            ScannedText = await CommonFunctions.ScanFileForLines(e.File.Name);
+            ScannedText = await AWSTextractFunctions.ScanFileForLines(e.File.Name);
 
             //Classify file
             ProgressText = "Clasificando archivo...";
@@ -266,12 +272,13 @@ Solo se aceptan archivos PDF, PNG o JPG";
                 ProgressText = "El archivo es una factura...";
                 ProgressPercent = 84;
 
-                BillDTO billDTO = await CommonFunctions.ScanFileForTables(e.File.Name);
+                BillDTO billDTO = await AWSTextractFunctions.
+                ScanFileForTables(e.File.Name);
 
                 TablesToRender = CommonFunctions.CreateHTMLTables(billDTO);
 
-                List<KeyValuePair<string, string>> KeyValuePairResult = await CommonFunctions
-                .ScanFileForForms(e.File.Name);
+                List<KeyValuePair<string, string>> KeyValuePairResult = 
+                await AWSTextractFunctions.ScanFileForForms(e.File.Name);
 
                 string ClientName = (from x in KeyValuePairResult
                                      where x.Key.Trim() == "Cliente:"
@@ -301,22 +308,37 @@ Solo se aceptan archivos PDF, PNG o JPG";
                                        where x.Key.Trim() == "Total"
                                        select x.Value).FirstOrDefault();
 
-                ModalTitleToRender = $@"<i class=""fas fa-file""></i> Documento: Factura";
+                ModalTitleToRender = $@"<i class=""fas fa-file""></i> 
+                                        Documento: Factura";
 
                 ModalBodyToRender = $@"
 <div class=""container"">
     <ul class=""list-group mb-4"">
-        <li class=""list-group-item""><b>Nombre del cliente:</b> {ClientName}</li>
-        <li class=""list-group-item""><b>Dirección del cliente:</b> {ClientAddress}</li>
-        <li class=""list-group-item""><b>Nombre del proveedor:</b> {ProviderName}</li>
-        <li class=""list-group-item""><b>Dirección del proveedor:</b> {ProviderAddress}</li>
-        <li class=""list-group-item""><b>Nro. de factura:</b> {BillingNumber}</li>
-        <li class=""list-group-item""><b>Fecha de la factura:</b> {BillingDate}</li>
-        <li class=""list-group-item""><b>Total de la factura:</b> {BillingTotal}</li>
+        <li class=""list-group-item"">
+            <b>Nombre del cliente:</b> {ClientName}
+        </li>
+        <li class=""list-group-item"">
+            <b>Dirección del cliente:</b> {ClientAddress}
+        </li>
+        <li class=""list-group-item"">
+            <b>Nombre del proveedor:</b> {ProviderName}
+        </li>
+        <li class=""list-group-item"">
+            <b>Dirección del proveedor:</b> {ProviderAddress}
+        </li>
+        <li class=""list-group-item"">
+            <b>Nro. de factura:</b> {BillingNumber}
+        </li>
+        <li class=""list-group-item"">
+            <b>Fecha de la factura:</b> {BillingDate}
+        </li>
+        <li class=""list-group-item"">
+            <b>Total de la factura:</b> {BillingTotal}
+        </li>
     </ul>
     {TablesToRender}
 </div>";
-                
+
                 //Save data in database
                 ProgressText = "Guardando datos en base de datos...";
                 ProgressPercent = 85;
@@ -330,7 +352,9 @@ Solo se aceptan archivos PDF, PNG o JPG";
                     BillingDate = BillingDate ?? "",
                     BillingTotal = BillingTotal ?? "",
                     FileName = e.File.Name,
-                    FileURL = Path.Combine(Environment.CurrentDirectory, "Uploads", e.File.Name),
+                    FileURL = Path.Combine(Environment.CurrentDirectory, 
+                        "Uploads", 
+                        e.File.Name),
                     UserId = StateContainer.User.UserId
 
                 };
@@ -341,7 +365,8 @@ Solo se aceptan archivos PDF, PNG o JPG";
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
-                        Description = $@"AWS Textract ha detectado que {e.File.Name} es una factura",
+                        Description = $@"AWS Textract ha detectado que 
+                                        {e.File.Name} es una factura",
                         UserId = User.UserId
                     };
                 await customLoggerRepository.Add(customLogger3, CancellationToken.None);
@@ -351,15 +376,56 @@ Solo se aceptan archivos PDF, PNG o JPG";
                 ProgressText = "El archivo es un documento...";
                 ProgressPercent = 86;
 
-                //TODO
+                GoogleCloudNLPFunctions GoogleCloudNLPFunctions = new();
+                AzureTextAnalyticsFunctions AzureTextAnalyticsFunctions = new();
 
+                List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
+                .ScanForSentiments(ScannedText);
+                List<string> lstResultsOfKeyWords = AzureTextAnalyticsFunctions
+                .ScanForKeyWords(ScannedText);
+
+                string ListOfSentimentsHTML = "";
+                foreach (string sentimentResult in lstResultsOfSentiments)
+                {
+                    ListOfSentimentsHTML += $@"<li class=""list-group-item"">
+                                                    {sentimentResult}
+                                                </li>";
+                }
+
+                string ListOfKeyWordsHTML = "";
+                foreach (string keyWordResult in lstResultsOfKeyWords)
+                {
+                    ListOfKeyWordsHTML += $@"<li class=""list-group-item"">
+                                                    {keyWordResult}
+                                                </li>";
+                }
+
+                ModalTitleToRender = $@"<i class=""fas fa-file""></i>
+                                        Documento: Documento (no es factura)";
+
+                ModalBodyToRender = $@"
+<div class=""container"">
+    <h5><b>Análisis de sentimientos</b></h5>
+    <div class=""card mb-3"">
+        <ul class=""list-group list-group-flush"">
+            {ListOfSentimentsHTML}
+        </ul>
+    </div>
+    <h5><b>Análisis de sentimientos</b></h5>
+    <div class=""card mb-3"">
+        <ul class=""list-group list-group-flush"">
+            {ListOfKeyWordsHTML}
+        </ul>
+    </div>
+</div>";
                 //Log info
                 CustomLogger customLogger3 = new()
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
-                        Description = $@"AWS Textract ha detectado que {e.File.Name} es un 
-                                        documento (no es factura)",
+                        Description = $@"AWS Textract ha detectado que 
+                                        {e.File.Name} es un documento 
+                                        (no es factura)",
                         UserId = User.UserId
                     };
                 await customLoggerRepository.Add(customLogger3, CancellationToken.None);

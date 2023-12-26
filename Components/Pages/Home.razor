@@ -9,13 +9,14 @@
 <PageTitle>Home - OneCore</PageTitle>
 
 <div class="container">
-    <div>
+    <div class="card mb-3">
         <div class="card-header"><img src="/img/OneCoreLogo.png" /></div>
         <div class="card-body">
             <h3>Análisis de archivos con IA</h3>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">AWS Textract</li>
                 <li class="list-group-item">Google Cloud NLP</li>
+                <li class="list-group-item">Azure Text Analytics</li>
             </ul>
         </div>
     </div>
@@ -95,7 +96,11 @@
                      width="350" alt="logos">
                 <div class="card-body">
                     <ul class="list-group list-group-flush mb-3">
-                        <li class="list-group-item bg-light"><h5><b>.NET</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>.NET</b>
+                            </h5>
+                        </li>
                         <li class="list-group-item bg-light">
                             Se usa .NET 8 y Blazor para el desarrollo de
                             la aplicación web
@@ -105,11 +110,16 @@
                             usa Bootstrap
                         </li>
                         <li class="list-group-item bg-light">
-                            Para los iconos se usa Font Awesome mediante su CDN
+                            Para los iconos se usa Font Awesome mediante
+                            su CDN
                         </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
-                        <li class="list-group-item bg-light"><h5><b>AWS</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>AWS</b>
+                            </h5>
+                        </li>
                         <li class="list-group-item bg-light">
                             Los archivos .pdf, .jpg y .png se guardan en
                             AWS S3
@@ -120,19 +130,38 @@
                         </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
-                        <li class="list-group-item bg-light"><h5><b>Google Cloud</b></h5></li>
                         <li class="list-group-item bg-light">
-                            Se utiliza para análisis de textos,
-                            orientado a resumenes, descripciones y análisis de
-                            sentimientos, Google Cloud NLP API
+                            <h5>
+                                <b>Google Cloud</b>
+                            </h5>
                         </li>
                         <li class="list-group-item bg-light">
                             Se utiliza para análisis de textos,
-                            Textract de AWS
+                            orientado a análisis de sentimientos, 
+                            Google Cloud NLP API
                         </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
-                        <li class="list-group-item bg-light"><h5><b>NOTAS</b></h5></li>
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>Azure Text Analytics</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de textos,
+                            orientado a resumir y dar una descripción,
+                            Azure Text Analytics. Cabe recalcar que
+                            he consolidado la descripción con el resumen.
+                            Pues, Azure Text Analytics solo puede devolver
+                            palabras claves de un texto
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>NOTAS</b>
+                            </h5>
+                        </li>
                         <li class="list-group-item bg-light">
                             No se usa sesión ni en el servidor ni el
                             buscador, para pasar información entre
@@ -148,7 +177,8 @@
                     <ul class="list-group list-group-flush mb-3">
                         <li class="list-group-item bg-light">
                             <h5><b>
-                                Features agregados además de los solicitados
+                                Features agregados además de los 
+                                solicitados
                                 </b>
                             </h5>
                         </li>
@@ -173,21 +203,22 @@
                         <li class="list-group-item bg-light">
                             <h5>
                                 <b>
-                                    Features que se pueden agregar en un futuro
+                                    Features que se pueden agregar en 
+                                    un futuro
                                 </b>
                             </h5>
                         </li>
                         <li class="list-group-item bg-light">
-                            Agregar paginacion en la pagina de logging para
-                            evitar cargas grandes de datos
+                            Agregar paginacion en la pagina de 
+                            logging para evitar cargas grandes de datos
                         </li>
                         <li class="list-group-item bg-light">
-                            Dar la posibilidad de agregar multiples archivos
-                            para analizar
+                            Dar la posibilidad de agregar multiples 
+                            archivos para analizar
                         </li>
                         <li class="list-group-item bg-light">
-                            Hacer un CRUD de Usuarios para agregar, editar
-                            o eliminar usuarios
+                            Encriptar las claves de los usuarios en la
+                            base de datos para mayor seguridad
                         </li>
                     </ul>
                 </div>
@@ -231,12 +262,16 @@
             //Validations
             if (User!.Email == "" || User!.Password == "")
             {
-                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> Completa todos los campos";
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i>
+                                        Completa todos los campos";
                 return;
             }
 
             //Get user by email and password
-            User = userRepository.GetByEmailAndPassword(User.Email, User.Password, CancellationToken.None);
+            User = userRepository.
+            GetByEmailAndPassword(User.Email, 
+                User.Password, 
+                CancellationToken.None);
 
             //Next if is to quit null value from User
             if (User == null)
@@ -255,7 +290,8 @@
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"Interacción del usuario",
-                        Description = $@"El usuario {User.Email} ha ingresado al sistema",
+                        Description = $@"El usuario {User.Email} ha ingresado 
+                                        al sistema",
                         UserId = User.UserId
                     };
                 await customLoggerRepository.Add(customLogger, CancellationToken.None);
@@ -263,14 +299,16 @@
             else
             {
                 //User not found
-                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> Usuario no encontrado";
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> 
+                                        Usuario no encontrado";
                 
                 //Log info
                 CustomLogger customLogger = new()
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"Interacción del usuario",
-                        Description = $@"Un usuario ha intentado entrar al sistema pero no pudo",
+                        Description = $@"Un usuario ha intentado entrar al
+                                        sistema pero no pudo",
                         UserId = 0
                     };
                 await customLoggerRepository.Add(customLogger, CancellationToken.None);
@@ -278,7 +316,9 @@
         }
         catch (Exception ex)
         {
-            MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> Hubo un error. Intenta nuevamente. Mensaje de error: {ex.Message}";
+            MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> 
+                                    Hubo un error. Intenta nuevamente. 
+                                    Mensaje de error: {ex.Message}";
         }
     }
 
