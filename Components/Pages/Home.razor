@@ -104,16 +104,62 @@
                             </h5>
                         </li>
                         <li class="list-group-item bg-light">
-                            Se usa .NET 8 y Blazor para el desarrollo de
-                            la aplicación web
+                            Se usa .NET 8 y Blazor (renderizado del lado del 
+                            servidor) para el desarrollo de la aplicación web
                         </li>
                         <li class="list-group-item bg-light">
                             Para el estilo y diseño del front-end se
-                            usa Bootstrap
+                            usa Bootstrap 5
                         </li>
                         <li class="list-group-item bg-light">
                             Para los iconos se usa Font Awesome mediante
                             su CDN
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se usa Entity Framework Core para el acceso a datos, 
+                            también se utilizan comandos para desplegar y 
+                            actualizar la base de datos como 
+                            <code>
+                                <b>Add-Migration [nombre]</b>
+                            </code> y
+                            <code>
+                                <b>Update-Database</b>
+                            </code>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se usa arquitectura de 4 capas:
+                            <ol>
+                                <li>
+                                    Páginas Blazor
+                                    (renderizado del lado del servidor), 
+                                    las cuales se alojan en la carpeta
+                                    <code><b>/OneCore/Components</b></code>
+                                </li>
+                                <li>
+                                    Repositorios con código LINQ para operaciones
+                                    a base de datos, los cuales se alojan en la
+                                    carpeta
+                                    <code><b>/OneCore/Repositories</b></code>
+                                </li>
+                                <li>
+                                    Entidades, las cuales contienen las propiedades
+                                    como copia fiel de las columnas de cada tabla,
+                                    estas se alojan en la carpeta 
+                                    <code><b>/OneCore/Entities</b></code>
+                                </li>
+                                <li>
+                                    Base de datos con MS SQL Server. Las migraciones
+                                    se encuentran en la carpeta 
+                                    <code><b>/OneCore/Migrations</b></code>
+                                </li>
+                            </ol>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se modularizan funciones comunes a toda la aplicación,
+                            las cuales se alojan en la carpeta 
+                            <code><b>/OneCore/CommonFunctions</b></code>
+                            Cabe recalcar que aquí se alojan las funciones para 
+                            las tecnologías de IA
                         </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
@@ -208,6 +254,9 @@
                             CRUD de archivos para editar o eliminar los archivos
                             subidos
                         </li>
+                        <li class="list-group-item bg-light">
+                            Permitir subir varios archivos en una sola operación
+                        </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
                         <li class="list-group-item bg-light">
@@ -220,15 +269,16 @@
                         </li>
                         <li class="list-group-item bg-light">
                             Agregar paginacion en la pagina de 
-                            logging para evitar cargas grandes de datos
-                        </li>
-                        <li class="list-group-item bg-light">
-                            Dar la posibilidad de agregar multiples 
-                            archivos para analizar
+                            logging, usuarios y archivos para evitar cargas 
+                            grandes de datos que ralenticen la aplicación
                         </li>
                         <li class="list-group-item bg-light">
                             Encriptar las claves de los usuarios en la
                             base de datos para mayor seguridad
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Trabajar con hilos para mostrar mensajes en tiempo
+                            real en las páginas
                         </li>
                     </ul>
                 </div>

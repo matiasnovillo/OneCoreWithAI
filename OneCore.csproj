@@ -34,8 +34,4 @@
     <Folder Include="wwwroot\Downloads\PDFFiles\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="wwwroot\Uploads\CVMatias Novillo7.pdf" />
-  </ItemGroup>
-
 </Project>

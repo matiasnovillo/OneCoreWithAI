@@ -206,7 +206,7 @@ else
             //Save file in local server
             ProgressText = "Subiendo archivo al servidor...";
             ProgressPercent = 80;
-            await CommonFunctions.SaveFileInLocalServer(e);
+            await CommonFunctions.SaveFileInLocalServer(e.File);
 
             //Save file in AWS S3 storage
             ProgressText = "Subiendo archivo a AWS S3...";

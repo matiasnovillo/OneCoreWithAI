@@ -126,7 +126,7 @@ namespace OneCore.Repositories
         {
             await _context.CustomLogger
                 .AddAsync(customLogger, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
+            return _context.SaveChanges() > 0;
         }
         #endregion
     }

@@ -7,6 +7,7 @@
 @using OneCore.Entities;
 @using OneCore.CommonFunctions;
 @using OneCore.Components.Shared
+@using System.Text.RegularExpressions;
 @inject BillRepository billRepository;
 @inject DocumentRepository documentRepository;
 @inject CustomLoggerRepository customLoggerRepository;
@@ -53,6 +54,9 @@
                     <i class="fas fa-exclamation"></i>
                     Recuerda que los archivos deben estar en formato <b>PDF</b>,
                     <b>PNG</b> o <b>JPG</b>, y deben pesar menos de <b>3MB</b>.
+                    Cabe recalcar que se pueden <b>subir varios archivos</b> para analizar,
+                    por si deseas hacer un bulk (volcado) de grandes cantidades
+                    de archivos
                 </div>
 
                 <!--Archivo a cargar-->
@@ -61,7 +65,9 @@
                 </label>
                 <InputFile OnChange="@UploadFile"
                            class="form-control form-control-lg mb-1"
-                           id="myfile" name="myfile" />
+                           id="myfile" 
+                           name="myfile"
+                           multiple/>
                 <span class="text-danger">@((MarkupString)ErrorMessage)</span>
                 <br />
 
@@ -82,39 +88,56 @@
                 </div>
                 <br />
 
-                @if (ButtonText != "")
+                @if (flagProcessFinished)
                 {
-                    <button type="button" class="btn btn-success"
-                            data-bs-toggle="modal"
-                            data-bs-target="#OneCoreModal">
-                        @ButtonText
-                    </button>
+                    if (lstNameOfFilesForHTML.Count != 0)
+                    {
+                        for (int i = 0; i < lstNameOfFilesForHTML.Count; i++)
+                        {
+                            <button type="button" 
+                                class="btn btn-success mx-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#@lstNameOfFilesForHTML[i]">
+                                Ver análisis de @lstNameOfFilesForUpload[i]
+                            </button>
+                        }
+                    }
                 }
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="OneCoreModal" tabindex="-1" 
-aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" 
-                id="exampleModalLabel">
-                    @((MarkupString)ModalTitleToRender)
-                </h1>
-            </div>
-            <div class="modal-body">
-                @((MarkupString)ModalBodyToRender)
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" 
-                data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Modals -->
+    if (flagProcessFinished)
+    {
+        if (lstNameOfFilesForHTML.Count != 0)
+        {
+            for (int i = 0; i < lstNameOfFilesForHTML.Count; i++)
+            {
+                <div class="modal fade" id="@lstNameOfFilesForHTML[i]" tabindex="-1"
+                     aria-labelledby="@lstNameOfFilesForHTML[i]" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">
+                                    @((MarkupString)lstModalTitleToRender[i])
+                                </h1>
+                            </div>
+                            <div class="modal-body">
+                                @((MarkupString)lstModalBodyToRender[i])
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
 }
 else
 {
@@ -124,13 +147,16 @@ else
 
 
 @code {
+    public bool flagProcessFinished { get; set; }
     public string ScannedText { get; set; } = "";
     public string ErrorMessage { get; set; } = "";
-    public string ButtonText { get; set; } = "";
-    public string ModalTitleToRender { get; set; } = "";
-    public string ModalBodyToRender { get; set; } = "";
+    public List<string>? lstModalTitleToRender { get; set; }
+    public List<string>? lstModalBodyToRender { get; set; }
     public string TablesToRender { get; set; } = "";
     public bool Toggle { get; set; }
+
+    public List<string>? lstNameOfFilesForUpload { get; set; } = new();
+    public List<string>? lstNameOfFilesForHTML { get; set; } = new();
 
     //Progress bar
     public bool DisplayProgress { get; set; } = false;
@@ -143,6 +169,7 @@ else
     protected override void OnInitialized()
     { 
         User = StateContainer.User;
+        flagProcessFinished = false;
 
         if (User != null)
         {
@@ -166,39 +193,93 @@ else
         base.OnInitialized();
     }
 
-    private void UploadFile(InputFileChangeEventArgs e)
+    private async void UploadFile(InputFileChangeEventArgs e)
     {
-        //Basic configuration
-        CommonFunctions CommonFunctions = new();
 
-        if (e.File.Name.EndsWith(".pdf") 
-        || e.File.Name.EndsWith(".png") 
-        || e.File.Name.EndsWith(".jpg"))
+        try
         {
-            if (e.File.Size <= CommonFunctions.MaxFileSize)
+            flagProcessFinished = false;
+            string fileForHTML = "";
+            List<bool> lstIsProcessFinished = [];
+            lstModalTitleToRender = [];
+            lstModalBodyToRender = [];
+
+            foreach (var file in e.GetMultipleFiles(e.FileCount))
             {
-                Main(e);
+                if (file.Name.EndsWith(".pdf")
+                || file.Name.EndsWith(".png")
+                || file.Name.EndsWith(".jpg"))
+                {
+                    if (file.Size <= 1024L * 1024L)
+                    {
+                        //Basic configuration
+                        CommonFunctions CommonFunctions = new();
+                        lstNameOfFilesForUpload?.Add(file.Name);
+                        string cleanedFileName = Regex.Replace(file.Name, @"[^a-z]", "");
+                        lstNameOfFilesForHTML?.Add(cleanedFileName);
+                        fileForHTML = file.Name;
+
+                        lstIsProcessFinished.Add(await Main(file));
+                    }
+                    else
+                    {
+                        ErrorMessage = $@" <i class=""fas fa-exclamation""></i>
+                                Solo se permiten archivos con un peso
+                                máximo de 3MB";
+                        break;
+                    }
+                }
+                else
+                {
+                    ErrorMessage = $@"<i class=""fas fa-exclamation""></i>
+                            Solo se aceptan archivos PDF, PNG o JPG";
+                    break;
+                }
+            }
+
+            foreach (bool isProcessFinished in lstIsProcessFinished)
+            {
+                if (isProcessFinished)
+                {
+                    flagProcessFinished = true;
+                }
+            }
+
+            if (flagProcessFinished)
+            {
+                ProgressText = "Análisis finalizado";
+                ProgressPercent = 100;
+                ProgressBarColour = "bg-success";
             }
             else
             {
-                ErrorMessage = $@" <i class=""fas fa-exclamation""></i> 
-                                Solo se permiten archivos con un peso 
-                                máximo de 3MB";
+                ProgressText = "Error en la carga y análisis";
+                ProgressPercent = 100;
+                ProgressBarColour = "bg-danger";
             }
+
+            //Re-render the page to show ScannedText
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
         }
-        else
+        catch (Exception ex)
         {
-            ErrorMessage = $@"<i class=""fas fa-exclamation""></i>
-                            Solo se aceptan archivos PDF, PNG o JPG";
+            ProgressText = "Error...";
+            ProgressPercent = 0;
+            ProgressBarColour = "bg-danger";
+            ErrorMessage = $@"<i class=""fas fa-exclamation""></i> {ex.Message}";
+        }
+        finally
+        {
+            //Re-render the page to show ScannedText
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
         }
     }
 
-    private async void Main(InputFileChangeEventArgs e)
+    private async Task<bool> Main(IBrowserFile file)
     {
         try
         {
             //Basic configuration
-            ButtonText = "";
             ProgressBarColour = "bg-info";
             ErrorMessage = "";
             DisplayProgress = true;
@@ -206,10 +287,10 @@ else
             AWSTextractFunctions AWSTextractFunctions = new();
 
             //Save file in local server
-            ProgressText = "Subiendo archivo al servidor...";
+            ProgressText = $@"Subiendo archivo {file.Name} al servidor...";
             ProgressPercent = 80;
 
-            await CommonFunctions.SaveFileInLocalServer(e);
+            await CommonFunctions.SaveFileInLocalServer(file);
 
             //Log info
             CustomLogger customLogger = new()
@@ -217,7 +298,7 @@ else
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
                     Description = $@"El usuario {User?.Email} ha subido el 
-                                    archivo {e.File.Name} para analizar, 
+                                    archivo {file.Name} para analizar,
                                     al servidor local",
                     UserId = User.UserId
                 };
@@ -225,9 +306,9 @@ else
                 .Add(customLogger, CancellationToken.None);
 
             //Save file in AWS S3 storage
-            ProgressText = "Subiendo archivo a AWS S3...";
+            ProgressText = $@"Subiendo archivo {file.Name} a AWS S3...";
             ProgressPercent = 81;
-            AWSTextractFunctions.SaveFileInAWSS3(e.File.Name);
+            AWSTextractFunctions.SaveFileInAWSS3(file.Name);
 
             //Log info
             CustomLogger customLogger2 = new()
@@ -235,7 +316,7 @@ else
                     DateTime = DateTime.Now,
                     InteractionType = $@"Interacción del usuario",
                     Description = $@"El usuario {User.Email} ha subido el 
-                                    archivo {e.File.Name} para analizar, 
+                                    archivo {file.Name} para analizar,
                                     a AWS S3",
                     UserId = User.UserId
                 };
@@ -243,27 +324,27 @@ else
                 .Add(customLogger2, CancellationToken.None);
 
             //Scan file located in AWS S3 storage, to get text
-            ProgressText = "Analizando archivo con AWS Textract...";
+            ProgressText = $@"Analizando archivo {file.Name} con AWS Textract...";
             ProgressPercent = 82;
-            ScannedText = await AWSTextractFunctions.ScanFileForLines(e.File.Name);
+            ScannedText = await AWSTextractFunctions.ScanFileForLines(file.Name);
 
             //Classify file
-            ProgressText = "Clasificando archivo...";
+            ProgressText = $@"Clasificando archivo {file.Name}...";
             ProgressPercent = 83;
             char BillOrDocument = ClassifyFile(ScannedText);
 
             if (BillOrDocument == 'b') //Bill
             {
-                ProgressText = "El archivo es una factura...";
+                ProgressText = $@"El archivo {file.Name} es una factura...";
                 ProgressPercent = 84;
 
                 BillDTO billDTO = await AWSTextractFunctions.
-                ScanFileForTables(e.File.Name);
+                ScanFileForTables(file.Name);
 
                 TablesToRender = CommonFunctions.CreateHTMLTables(billDTO);
 
                 List<KeyValuePair<string, string>> KeyValuePairResult = 
-                await AWSTextractFunctions.ScanFileForForms(e.File.Name);
+                await AWSTextractFunctions.ScanFileForForms(file.Name);
 
                 string ClientName = (from x in KeyValuePairResult
                                      where x.Key.Trim() == "Cliente:"
@@ -293,10 +374,10 @@ else
                                        where x.Key.Trim() == "Total"
                                        select x.Value).FirstOrDefault();
 
-                ModalTitleToRender = $@"<i class=""fas fa-file""></i> 
-                                        Documento: Factura";
+                lstModalTitleToRender.Add($@"<i class=""fas fa-file""></i>
+                                        Documento: Factura");
 
-                ModalBodyToRender = $@"
+                lstModalBodyToRender.Add($@"
 <div class=""container"">
     <ul class=""list-group mb-4"">
         <li class=""list-group-item"">
@@ -322,7 +403,7 @@ else
         </li>
     </ul>
     {TablesToRender}
-</div>";
+</div>");
 
                 //Save data in database
                 ProgressText = "Guardando datos en base de datos...";
@@ -336,10 +417,10 @@ else
                     BillingNumber = BillingNumber ?? "",
                     BillingDate = BillingDate ?? "",
                     BillingTotal = BillingTotal ?? "",
-                    FileName = e.File.Name,
+                        FileName = file.Name,
                     FileURL = Path.Combine(Environment.CurrentDirectory, 
                         "Uploads", 
-                        e.File.Name),
+                            file.Name),
                     UserId = StateContainer.User.UserId
 
                 };
@@ -351,7 +432,7 @@ else
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
                         Description = $@"AWS Textract ha detectado que 
-                                        {e.File.Name} es una factura",
+                                        {file.Name} es una factura",
                         UserId = User.UserId
                     };
                 await customLoggerRepository
@@ -364,7 +445,7 @@ else
                         InteractionType = $@"Base de datos",
                         Description = $@"Se ha guardado un nuevo registro en
                                         la base de datos por una factura con
-                                        el nombre {e.File.Name} cargada",
+                                        el nombre {file.Name} cargada",
                         UserId = User.UserId
                     };
                 await customLoggerRepository
@@ -372,7 +453,7 @@ else
             }
             else //Document
             {
-                ProgressText = "El archivo es un documento...";
+                ProgressText = $@"El archivo {file.Name} es un documento...";
                 ProgressPercent = 86;
 
 
@@ -386,7 +467,7 @@ else
                         InteractionType = $@"IA",
                         Description = $@"Se hizo un análisis de sentimiento y
                                         extracción de palabras claves del archivo
-                                        {e.File.Name}",
+                                        {file.Name}",
                         UserId = User.UserId
                     };
                 await customLoggerRepository
@@ -401,7 +482,7 @@ else
                 foreach (string sentimentResult in lstResultsOfSentiments)
                 {
                     ListOfSentimentsHTML += $@"<li class=""list-group-item"">
-                                            {sentimentResult}
+                            {sentimentResult}
                                                 </li>";
                 }
 
@@ -409,7 +490,7 @@ else
                 foreach (string keyWordResult in lstResultsOfKeyWords)
                 {
                     ListOfKeyWordsHTML += $@"<li class=""list-group-item"">
-                                            {keyWordResult}
+                            {keyWordResult}
                                                 </li>";
                 }
 
@@ -434,11 +515,11 @@ else
                         Description = KeyWords ?? "",
                         Resume = KeyWords ?? "",
                         Feeling = Sentiments ?? "",
-                        FileName = e.File.Name,
+                        FileName = file.Name,
                         FileURL = Path.Combine(Environment.CurrentDirectory,
                                 "wwwroot",
                                 "Uploads",
-                                e.File.Name),
+                                    file.Name),
                         UserId = StateContainer.User.UserId
 
                     };
@@ -451,60 +532,49 @@ else
                         InteractionType = $@"Base de datos",
                         Description = $@"Se ha guardado un nuevo registro en
                                         la base de datos por un documento con
-                                        el nombre {e.File.Name} cargado",
+                                        el nombre {file.Name} cargado",
                         UserId = User.UserId
                     };
                 await customLoggerRepository
                     .Add(customLogger3, CancellationToken.None);
 
-                ModalTitleToRender = $@"<i class=""fas fa-file""></i>
-                                        Documento: Documento (no es factura)";
+                lstModalTitleToRender.Add($@"<i class=""fas fa-file""></i>
+                                        Documento: Documento (no es factura)");
 
-                ModalBodyToRender = $@"
+                lstModalBodyToRender.Add($@"
 <div class=""container"">
     <h5><b>Análisis de sentimientos</b></h5>
     <div class=""card mb-3"">
         <ul class=""list-group list-group-flush"">
-            {ListOfSentimentsHTML}
+    {ListOfSentimentsHTML}
         </ul>
     </div>
     <h5><b>Análisis de palabras claves</b></h5>
     <div class=""card mb-3"">
         <ul class=""list-group list-group-flush"">
-            {ListOfKeyWordsHTML}
+    {ListOfKeyWordsHTML}
         </ul>
     </div>
-</div>";
+</div>");
+
                 //Log info
                 CustomLogger customLogger5 = new()
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
                         Description = $@"AWS Textract ha detectado que 
-                                        {e.File.Name} es un documento 
+                                        {file.Name} es un documento
                                         (no es factura)",
                         UserId = User.UserId
                     };
                 await customLoggerRepository
                     .Add(customLogger5, CancellationToken.None);
             }
-
-            ButtonText = "Ver análisis";
-            ProgressText = "Análisis finalizado";
-            ProgressPercent = 100;
-            ProgressBarColour = "bg-success";
+            return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ProgressText = "Error...";
-            ProgressPercent = 0;
-            ProgressBarColour = "bg-danger";
-            ErrorMessage = $@"<i class=""fas fa-exclamation""></i> {ex.Message}";
-        }
-        finally
-        {
-            //Re-render the page to show ScannedText
-            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+            throw;
         }
     }
 

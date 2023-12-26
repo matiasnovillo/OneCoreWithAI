@@ -9,7 +9,7 @@ namespace OneCore.CommonFunctions
         
         public long MaxFileSize { get; } = 1024L * 1024L; //3MB max.
 
-        public async Task<bool> SaveFileInLocalServer(InputFileChangeEventArgs e)
+        public async Task<bool> SaveFileInLocalServer(IBrowserFile file)
         {
             try
             {
@@ -17,10 +17,10 @@ namespace OneCore.CommonFunctions
                     Environment.CurrentDirectory,
                     "wwwroot",
                     "Uploads",
-                    e.File.Name);
+                    file.Name);
 
                 await using FileStream FileStream = new(path, FileMode.Create);
-                await e.File.OpenReadStream(MaxFileSize).CopyToAsync(FileStream);
+                await file.OpenReadStream(MaxFileSize).CopyToAsync(FileStream);
 
                 FileStream.Close();
             }
