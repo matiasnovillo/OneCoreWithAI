@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.EntityFrameworkCore;
 using OneCore.Entities;
 using System.Text.RegularExpressions;
 
@@ -17,9 +18,9 @@ namespace OneCore.Repositories
         {
             return _context.Document.AsQueryable();
         }
-        public async Task<Document?> GetById(int documentId, CancellationToken cancellationToken)
+        public Document? GetById(int documentId, CancellationToken cancellationToken)
         {
-            return await _context.Document.FindAsync(new object[] { documentId }, cancellationToken: cancellationToken);
+            return _context.Document.FirstOrDefault(d => d.DocumentId == documentId);
         }
         public async Task<bool> Add(Document document, CancellationToken cancellationToken)
         {

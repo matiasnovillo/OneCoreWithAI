@@ -14,7 +14,7 @@
 
 @if(Toggle)
 {
-    <!--Usuario logueado-->
+    <!--Page for logged user-->
     <div class="container">
         <div class="card mb-3">
             <div class="card-header">
@@ -152,7 +152,7 @@
                     <tbody>
                         @foreach (CustomLogger customLogger in lstCustomLogger)
                         {
-                            if (customLogger.InteractionType != "IA")
+                            if (customLogger.InteractionType == "IA")
                             {
                                 <tr class="table-info">
                                     <td>@customLogger.CustomLoggerId</td>
@@ -163,7 +163,7 @@
                                     <td>@StateContainer.User.Email</td>
                                 </tr>
                             }
-                            else if (customLogger.InteractionType != "Base de datos")
+                            else if (customLogger.InteractionType == "Base de datos")
                             {
                                 <tr class="table-success">
                                     <td>@customLogger.CustomLoggerId</td>
@@ -194,7 +194,7 @@
 }
 else
 {
-    <!--Usuario NO logueado-->
+    <!--Page for not logged user-->
     <div class="container">
         <div class="d-flex mt-5 pt-5 justify-content-center">
             <div class="card bg-light" style="width: 30rem;">

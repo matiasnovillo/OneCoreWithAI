@@ -14,8 +14,9 @@ namespace OneCore.CommonFunctions
             try
             {
                 string path = Path.Combine(
-                    Environment.CurrentDirectory, 
-                    "Uploads", 
+                    Environment.CurrentDirectory,
+                    "wwwroot",
+                    "Uploads",
                     e.File.Name);
 
                 await using FileStream FileStream = new(path, FileMode.Create);

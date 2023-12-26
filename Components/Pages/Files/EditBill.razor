@@ -1,20 +1,140 @@
-﻿@page "/files/bill/{BillId}"
+﻿@page "/files/bill/{BillId:int}"
 
 @using OneCore.Repositories
 @using OneCore.Entities
 @using OneCore.Components.Shared
-@inject CustomLoggerRepository customLoggerRepository
+@inject BillRepository billRepository;
+@inject CustomLoggerRepository customLoggerRepository;
 @inject StateContainer StateContainer
+@inject NavigationManager NavigationManager
 
 <PageTitle>Editar factura - OneCore</PageTitle>
 
-@if(Toggle)
+@if (Toggle)
 {
-    <!--Usuario logueado-->
+    <!--Page for logged user-->
+    <div class="container">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3><i class="fas fa-file"></i> Editar factura</h3>
+                <NavLink class="btn btn-outline-info text-white mt-3" href="files">
+                    <span class="fas fa-chevron-left" aria-hidden="true"></span>&nbsp;Volver
+                </NavLink>
+            </div>
+            <div class="card-body">
+                <form method="post" @onsubmit="Submit"
+                      @formname="login-form" class="mb-4">
+                    <AntiforgeryToken />
+                    <!--FileName-->
+                    <div class="mb-3">
+                        <label for="filename" class="form-label">
+                            <b>Nombre de archivo</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.FileName"
+                                   type="text" id="filename"
+                                   class="form-control" />
+                    </div>
+                    <!--FileURL-->
+                    <div class="mb-3">
+                        <label for="filurl" class="form-label">
+                            <b>URL del archivo</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.FileURL"
+                                   type="text" id="filurl"
+                                   class="form-control"
+                                   readonly />
+                        <a href="@DownloadButton"
+                           class="btn btn-sm btn-info mt-2 text-white"
+                           download>
+                            <i class="fas fa-download"></i>
+                            Descargar
+                        </a>
+                    </div>
+                    <!--ClientName-->
+                    <div class="mb-3">
+                        <label for="clientname" class="form-label">
+                            <b>Nombre del cliente</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.ClientName"
+                                   type="text" id="clientname"
+                                   class="form-control" />
+                    </div>
+                    <!--ClientAddress-->
+                    <div class="mb-3">
+                        <label for="clientaddress" class="form-label">
+                            <b>Dirección del cliente</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.ClientAddress"
+                                   type="text" id="clientaddress"
+                                   class="form-control" />
+                    </div>
+                    <!--ProviderName-->
+                    <div class="mb-3">
+                        <label for="providername" class="form-label">
+                            <b>Nombre del proveedor</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.ProviderName"
+                                   type="text" id="providername"
+                                   class="form-control" />
+                    </div>
+                    <!--ProviderAddress-->
+                    <div class="mb-3">
+                        <label for="provideraddress" class="form-label">
+                            <b>Nombre del cliente</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.ProviderAddress"
+                                   type="text" id="provideraddress"
+                                   class="form-control" />
+                    </div>
+                    <!--BillingNumber-->
+                    <div class="mb-3">
+                        <label for="billingnumber" class="form-label">
+                            <b>Nro. de factura</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.BillingNumber"
+                                   type="text" id="billingnumber"
+                                   class="form-control" />
+                    </div>
+                    <!--BillingDate-->
+                    <div class="mb-3">
+                        <label for="billingdate" class="form-label">
+                            <b>Nro. de factura</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.BillingDate"
+                                   type="text" id="billingdate"
+                                   class="form-control" />
+                    </div>
+                    <!--BillingTotal-->
+                    <div class="mb-3">
+                        <label for="billingtotal" class="form-label">
+                            <b>Nro. de factura</b>
+                        </label>
+                        <InputText @bind-Value="Bill!.BillingTotal"
+                                   type="text" id="billingtotal"
+                                   class="form-control" />
+                    </div>
+                    <button id="btn-submit" type="submit"
+                            class="btn btn-primary">
+                        <i class="fas fa-pen"></i>
+                        Editar
+                    </button>
+                    <NavLink class="btn btn-outline-info text-white" href="files">
+                        <span class="fas fa-chevron-left" aria-hidden="true"></span>&nbsp;Volver
+                    </NavLink>
+                </form>
+                @if (MessageForLoginForm != "")
+                {
+                    <span class="text-danger">
+                        @((MarkupString)MessageForLoginForm)
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
 }
 else
 {
-    <!--Usuario NO logueado-->
+    <!--Page for not logged user-->
     <div class="container">
         <div class="d-flex mt-5 pt-5 justify-content-center">
             <div class="card bg-light" style="width: 30rem;">
@@ -42,5 +162,88 @@ else
 }
 
 @code {
+    [Parameter]
+    public int BillId { get; set; }
+
     public bool Toggle { get; set; }
+
+    public string DownloadButton { get; set; }
+
+    public string MessageForLoginForm { get; set; } = "";
+
+    [SupplyParameterFromForm]
+    public Bill Bill { get; set; }
+
+    public User? User { get; set; }
+
+    protected override void OnInitialized()
+    {
+        User = StateContainer.User;
+
+        if (User != null)
+        {
+            if (User.UserId != 0)
+            {
+                //Logged user
+                Toggle = true;
+
+                //Populate bill data
+                Bill = billRepository
+                .GetById(BillId, CancellationToken.None);
+
+                DownloadButton = $@"Uploads\{Bill.FileURL.Substring(Bill.FileURL.LastIndexOf('\\') + 1)}";
+            }
+            else
+            {
+                //Not logged user
+                Toggle = false;
+            }
+        }
+        else
+        {
+            //Impossible
+            Toggle = false;
+        }
+
+        base.OnInitialized();
+    }
+
+    private async void Submit()
+    {
+        try
+        {
+            //Validations
+            if (Bill!.FileName == "")
+            {
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i>
+                                        El nombre del archivo no puede estar
+                                        vacío";
+                return;
+            }
+
+            //Update data
+            await billRepository
+            .Update(Bill, CancellationToken.None);
+
+            //Log info
+            CustomLogger customLogger = new()
+                {
+                    DateTime = DateTime.Now,
+                    InteractionType = $@"Interacción del usuario",
+                    Description = $@"El usuario {User.Email} ha modificado datos
+                                    de la factura con ID: {Bill.BillId}",
+                    UserId = User.UserId
+                };
+            await customLoggerRepository.Add(customLogger, CancellationToken.None);
+
+            //Redirect to files page
+            NavigationManager.NavigateTo("files");
+        }
+        catch (Exception ex)
+        {
+            MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i>
+                                    Hubo un error. Intenta nuevamente.
+                                    Mensaje de error: {ex.Message}";
+        }
+    }
 }

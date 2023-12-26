@@ -18,9 +18,9 @@ namespace OneCore.Repositories
         {
             return _context.Bill.AsQueryable();
         }
-        public async Task<Bill?> GetById(int billId, CancellationToken cancellationToken)
+        public Bill? GetById(int billId, CancellationToken cancellationToken)
         {
-            return await _context.Bill.FindAsync(new object[] { billId }, cancellationToken: cancellationToken);
+            return _context.Bill.FirstOrDefault(b => b.BillId == billId);
         }
         public async Task<bool> Add(Bill bill, CancellationToken cancellationToken)
         {

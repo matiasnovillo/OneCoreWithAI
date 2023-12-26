@@ -29,9 +29,13 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Downloads\ExcelFiles\" />
-    <Folder Include="Uploads\" />
+    <Folder Include="wwwroot\Uploads\" />
     <Folder Include="wwwroot\Downloads\CSVFiles\" />
     <Folder Include="wwwroot\Downloads\PDFFiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Uploads\CVMatias Novillo7.pdf" />
   </ItemGroup>
 
 </Project>

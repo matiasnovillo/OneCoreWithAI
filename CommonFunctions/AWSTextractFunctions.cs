@@ -15,6 +15,7 @@ namespace OneCore.CommonFunctions
         {
             string path = Path.Combine(
                 Environment.CurrentDirectory,
+                "wwwroot",
                 "Uploads",
                 fileName);
 
