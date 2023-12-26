@@ -8,6 +8,7 @@
         public string? Description { get; set; }
         public string? Resume { get; set; }
         public string? Feeling { get; set; }
+        public string? KeyWord { get; set; }
         public int UserId { get; set; }
         public virtual User? User { get; set; }
     }

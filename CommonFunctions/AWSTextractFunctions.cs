@@ -2,7 +2,7 @@
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using Amazon.Textract;
-using OneCore.DTOs;
+using OneCore.CommonFunctions.DTOs;
 
 namespace OneCore.CommonFunctions
 {

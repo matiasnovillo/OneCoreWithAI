@@ -31,6 +31,10 @@ namespace OneCore.Entities.EntitiesConfiguration
                 .HasColumnType("text")
                 .IsRequired(false);
 
+            entity.Property(e => e.KeyWord)
+                .HasColumnType("text")
+                .IsRequired(false);
+
             //ForeignKey
             entity.Property(e => e.UserId)
                 .IsRequired();

@@ -86,6 +86,17 @@
                             rows="20">
                          </textarea>
                     </div>
+                    <div class="mb-3">
+                        <label for="keyword" class="form-label">
+                            <b>Palabras claves</b>
+                        </label>
+                        <textarea @bind="Document!.KeyWord"
+                                  type="text"
+                                  id="keyword"
+                                  class="form-control"
+                                  rows="20">
+                             </textarea>
+                    </div>
                     <button id="btn-submit" type="submit"
                             class="btn btn-primary">
                         <i class="fas fa-pen"></i>

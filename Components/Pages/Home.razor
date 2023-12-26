@@ -196,12 +196,8 @@
                             </h5>
                         </li>
                         <li class="list-group-item bg-light">
-                            Se utiliza para análisis de textos,
-                            orientado a resumir y dar una descripción,
-                            Azure Text Analytics. Cabe recalcar que
-                            he consolidado la descripción con el resumen.
-                            Pues, Azure Text Analytics solo puede devolver
-                            palabras claves de un texto
+                            Se utiliza para análisis de palabras claves,
+                            Azure Text Analytics.
                         </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
@@ -257,6 +253,12 @@
                         <li class="list-group-item bg-light">
                             Permitir subir varios archivos en una sola operación
                         </li>
+                        <li class="list-group-item bg-light">
+                            Encriptación de las claves de los usuarios en la
+                            base de datos para mayor seguridad. La encriptación
+                            utilizada es unilateral, lo cual no puede ser
+                            desencriptada
+                        </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
                         <li class="list-group-item bg-light">
@@ -273,12 +275,14 @@
                             grandes de datos que ralenticen la aplicación
                         </li>
                         <li class="list-group-item bg-light">
-                            Encriptar las claves de los usuarios en la
-                            base de datos para mayor seguridad
-                        </li>
-                        <li class="list-group-item bg-light">
                             Trabajar con hilos para mostrar mensajes en tiempo
                             real en las páginas
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Dividir la aplicación en microservicios para login
+                            de usuarios, CRUD de usuarios, CRUD de archivos,
+                            logging, y subida y análisis de archivos. Solo si
+                            es sumamente necesario
                         </li>
                     </ul>
                 </div>

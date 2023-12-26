@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
-using OneCore.DTOs;
 using System.Text;
 using System.Security.Cryptography;
+using OneCore.CommonFunctions.DTOs;
 
 namespace OneCore.CommonFunctions
 {

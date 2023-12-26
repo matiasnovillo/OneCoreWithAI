@@ -1,4 +1,4 @@
-﻿namespace OneCore.DTOs
+﻿namespace OneCore.CommonFunctions.DTOs
 {
     public class BillDTO
     {

@@ -1,16 +1,16 @@
 ﻿@page "/analyzefiles"
 @rendermode InteractiveServer
-@using System.Text
+@using System.Text;
 @using System.IO;
-@using OneCore.DTOs;
+@using OneCore.CommonFunctions.DTOs;
 @using OneCore.Repositories;
 @using OneCore.Entities;
 @using OneCore.CommonFunctions;
-@using OneCore.Components.Shared
+@using OneCore.Components.Shared;
 @using System.Text.RegularExpressions;
-@inject BillRepository billRepository;
-@inject DocumentRepository documentRepository;
-@inject CustomLoggerRepository customLoggerRepository;
+@inject BillRepository billRepository
+@inject DocumentRepository documentRepository
+@inject CustomLoggerRepository customLoggerRepository
 
 @inject StateContainer StateContainer
 
@@ -214,7 +214,7 @@ else
                     if (file.Size <= CommonFunctions.MaxFileSize)
                     {
                         //Basic configuration
-                        
+
                         lstNameOfFilesForUpload?.Add(file.Name);
                         string cleanedFileName = Regex.Replace(file.Name, @"[^a-z]", "");
                         lstNameOfFilesForHTML?.Add(cleanedFileName);
@@ -476,6 +476,7 @@ else
 
                 List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
                 .ScanForSentiments(ScannedText);
+
                 List<string> lstResultsOfKeyWords = AzureTextAnalyticsFunctions
                 .ScanForKeyWords(ScannedText);
 
@@ -513,8 +514,9 @@ else
 
                 Document Document = new()
                     {
-                        Description = KeyWords ?? "",
-                        Resume = KeyWords ?? "",
+                        Description = "" ?? "",
+                        Resume = "" ?? "",
+                        KeyWord = KeyWords ?? "",
                         Feeling = Sentiments ?? "",
                         FileName = file.Name,
                         FileURL = Path.Combine(Environment.CurrentDirectory,
