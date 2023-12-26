@@ -18,24 +18,12 @@ namespace OneCore.Repositories
         {
             return _context.Bill.AsQueryable();
         }
-        public Bill? GetById(int billId, CancellationToken cancellationToken)
+
+        #region Queries
+        public Bill? GetById(int billId, 
+            CancellationToken cancellationToken)
         {
             return _context.Bill.FirstOrDefault(b => b.BillId == billId);
-        }
-        public async Task<bool> Add(Bill bill, CancellationToken cancellationToken)
-        {
-            await _context.Bill.AddAsync(bill, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
-        }
-        public async Task<bool> Update(Bill bill, CancellationToken cancellationToken)
-        {
-            _context.Bill.Update(bill);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
-        }
-        public async Task<bool> Remove(Bill bill, CancellationToken cancellationToken)
-        {
-            _context.Bill.Remove(bill);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
 
         public List<Bill?> GetAll(CancellationToken cancellationToken)
@@ -72,7 +60,8 @@ namespace OneCore.Repositories
             CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
-            string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+            string[] words = Regex
+                .Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
 
             List<Bill> lstBill = [];
 
@@ -96,8 +85,24 @@ namespace OneCore.Repositories
 
             return lstBill;
         }
+        #endregion
 
-        public async Task<bool> DeleteByBillId(int billId, CancellationToken cancellationToken)
+        #region Non-Queries
+        public async Task<bool> Add(Bill bill, 
+            CancellationToken cancellationToken)
+        {
+            await _context.Bill.AddAsync(bill, cancellationToken);
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+        public async Task<bool> Update(Bill bill, 
+            CancellationToken cancellationToken)
+        {
+            _context.Bill.Update(bill);
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+
+        public async Task<bool> DeleteByBillId(int billId,
+            CancellationToken cancellationToken)
         {
             AsQueryable()
                 .Where(d => d.BillId == billId)
@@ -105,5 +110,6 @@ namespace OneCore.Repositories
 
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
+        #endregion
     }
 }

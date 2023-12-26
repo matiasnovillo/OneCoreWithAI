@@ -17,12 +17,8 @@ namespace OneCore.Repositories
         {
             return _context.CustomLogger.AsQueryable();
         }
-        public async Task<bool> Add(CustomLogger customLogger, CancellationToken cancellationToken)
-        {
-            await _context.CustomLogger.AddAsync(customLogger, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
-        }
 
+        #region Queries
         public List<CustomLogger?> GetAll(CancellationToken cancellationToken)
         {
             List<CustomLogger> lstCustomLogger = new();
@@ -54,11 +50,14 @@ namespace OneCore.Repositories
             return lstCustomLogger;
         }
 
-        public List<CustomLogger?> GetAllByDescription(string textToSearch, bool strictSearch, CancellationToken cancellationToken)
+        public List<CustomLogger?> GetAllByDescription(string textToSearch, 
+            bool strictSearch, 
+            CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
-            string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
-            
+            string[] words = Regex
+                .Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
+
             List<CustomLogger> lstCustomLogger = new();
 
             var GetAllQuery = AsQueryable()
@@ -83,7 +82,9 @@ namespace OneCore.Repositories
             return lstCustomLogger;
         }
 
-        public List<CustomLogger?> GetAllByInteractionType(string textToSearch, bool strictSearch, CancellationToken cancellationToken)
+        public List<CustomLogger?> GetAllByInteractionType(string textToSearch, 
+            bool strictSearch, 
+            CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
             string[] words = Regex.Replace(textToSearch.Trim(), @"\s+", " ").Split(" ");
@@ -111,5 +112,15 @@ namespace OneCore.Repositories
 
             return lstCustomLogger;
         }
+        #endregion
+
+        #region Non-Queries
+        public async Task<bool> Add(CustomLogger customLogger, 
+            CancellationToken cancellationToken)
+        {
+            await _context.CustomLogger.AddAsync(customLogger, cancellationToken);
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+        #endregion
     }
 }

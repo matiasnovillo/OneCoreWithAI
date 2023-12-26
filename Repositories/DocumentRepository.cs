@@ -18,24 +18,13 @@ namespace OneCore.Repositories
         {
             return _context.Document.AsQueryable();
         }
-        public Document? GetById(int documentId, CancellationToken cancellationToken)
+
+        #region Queries
+        public Document? GetById(int documentId, 
+            CancellationToken cancellationToken)
         {
-            return _context.Document.FirstOrDefault(d => d.DocumentId == documentId);
-        }
-        public async Task<bool> Add(Document document, CancellationToken cancellationToken)
-        {
-            await _context.Document.AddAsync(document, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
-        }
-        public async Task<bool> Update(Document document, CancellationToken cancellationToken)
-        {
-            _context.Document.Update(document);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
-        }
-        public async Task<bool> Remove(Document document, CancellationToken cancellationToken)
-        {
-            _context.Document.Remove(document);
-            return await _context.SaveChangesAsync(cancellationToken) > 0;
+            return _context.Document
+                .FirstOrDefault(d => d.DocumentId == documentId);
         }
 
         public List<Document?> GetAll(CancellationToken cancellationToken)
@@ -90,8 +79,24 @@ namespace OneCore.Repositories
 
             return lstDocument;
         }
+        #endregion
 
-        public async Task<bool> DeleteByDocumentId(int documentId, CancellationToken cancellationToken)
+        #region Non-Queries
+        public async Task<bool> Add(Document document, 
+            CancellationToken cancellationToken)
+        {
+            await _context.Document.AddAsync(document, cancellationToken);
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+        public async Task<bool> Update(Document document, 
+            CancellationToken cancellationToken)
+        {
+            _context.Document.Update(document);
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+
+        public async Task<bool> DeleteByDocumentId(int documentId, 
+            CancellationToken cancellationToken)
         {
             await AsQueryable()
                 .Where(d => d.DocumentId == documentId)
@@ -99,5 +104,6 @@ namespace OneCore.Repositories
 
             return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
+        #endregion
     }
 }
