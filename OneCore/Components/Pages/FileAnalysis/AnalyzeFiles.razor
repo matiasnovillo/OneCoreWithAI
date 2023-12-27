@@ -1,0 +1,621 @@
+﻿@page "/analyzefiles"
+@rendermode InteractiveServer
+@using Amazon.S3;
+@using Amazon;
+@using Amazon.S3.Transfer;
+@using System.Text;
+@using System.IO;
+@using OneCore.Repositories;
+@using OneCore.Entities;
+@using OneCore.CommonFunctions;
+@using OneCore.Components.Shared;
+@using System.Text.RegularExpressions;
+@inject BillRepository billRepository
+@inject DocumentRepository documentRepository
+@inject CustomLoggerRepository customLoggerRepository
+
+@inject StateContainer StateContainer
+
+<PageTitle>Carga y análisis de archivos - OneCore</PageTitle>
+
+@if (Toggle)
+{
+<!--Page for logged user-->
+<div class="container">
+    
+    <div class="card mb-3">
+            <div class="card-header">
+                <h1>
+                    <i class="fas fa-file"></i>
+                    Carga y análisis de archivos
+                </h1>
+            </div>
+        <div class="card-body">
+                <!--Alerts-->
+                <div class="alert alert-info mb-3" role="alert">
+                    <i class="fas fa-info"></i>
+                    Para analizar archivos, dejo de ejemplo una
+                    <a class="btn btn-link" 
+                        download 
+                        href="Downloads/FilesToAnalyze/Textract-Example-Bill.pdf">
+                        factura
+                        <i class="fas fa-download"></i>
+                    </a> y un
+                    <a class="btn btn-link" 
+                        download 
+                        href="Downloads/FilesToAnalyze/Textract-Example-Document.pdf">
+                        documento
+                        <i class="fas fa-download"></i>
+                    </a>
+                    para que puedas descargar y probar. Para ayudar al análisis 
+                    por parte de AWS Textract, se detecta que el archivo es 
+                    una factura si lee las palabras "i.v.a" o "iva", tanto en 
+                    mayúsculas como en minúsculas.
+                </div>
+                <div class="alert alert-warning mb-5" role="alert">
+                    <i class="fas fa-exclamation"></i>
+                    Recuerda que los archivos deben estar en formato <b>PDF</b>,
+                    <b>PNG</b> o <b>JPG</b>, y deben pesar menos de <b>3MB</b>.
+                    Cabe recalcar que se pueden <b>subir varios archivos</b> para analizar,
+                    por si deseas hacer un bulk (volcado) de grandes cantidades
+                    de archivos
+                </div>
+
+                <!--Archivo a cargar-->
+                <label for="myfile" class="form-label">
+                    <i class="fas fa-upload"></i> Selecciona un archivo
+                </label>
+                <InputFile OnChange="@UploadFile"
+                           class="form-control form-control-lg mb-1"
+                           id="myfile" 
+                           name="myfile"
+                           multiple/>
+                <span class="text-danger">@((MarkupString)ErrorMessage)</span>
+                <br />
+
+
+                @{
+                    var progressCss = "progress" + (DisplayProgress ? "" : "d-none");
+                    var progressWidthStyle = ProgressPercent + "%";
+                }
+
+                <!-- Progress bar -->
+                <p>@ProgressText</p>
+                <div class="@progressCss">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated @ProgressBarColour"
+                         role="progressbar" style="width:@progressWidthStyle"
+                         area-valuenow="@ProgressPercent" aria-valuemin="0"
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <br />
+
+                @if (flagProcessFinished)
+                {
+                    if (lstNameOfFilesForHTML.Count != 0)
+                    {
+                        for (int i = 0; i < lstNameOfFilesForHTML.Count; i++)
+                        {
+                            <button type="button" 
+                                class="btn btn-success mx-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#@lstNameOfFilesForHTML[i]">
+                                Ver análisis de @lstNameOfFilesForUpload[i]
+                            </button>
+                        }
+                    }
+                }
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+    if (flagProcessFinished)
+    {
+        if (lstNameOfFilesForHTML.Count != 0)
+        {
+            for (int i = 0; i < lstNameOfFilesForHTML.Count; i++)
+            {
+                <div class="modal fade" id="@lstNameOfFilesForHTML[i]" tabindex="-1"
+                     aria-labelledby="@lstNameOfFilesForHTML[i]" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">
+                                    @((MarkupString)lstModalTitleToRender[i])
+                                </h1>
+                            </div>
+                            <div class="modal-body">
+                                @((MarkupString)lstModalBodyToRender[i])
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+}
+else
+{
+    <!--Page for not logged user-->
+    <OneCore.Components.Layout.NotLogged></OneCore.Components.Layout.NotLogged>
+}
+
+
+@code {
+    public bool flagProcessFinished { get; set; }
+    public string ScannedText { get; set; } = "";
+    public string ErrorMessage { get; set; } = "";
+    public List<string>? lstModalTitleToRender { get; set; }
+    public List<string>? lstModalBodyToRender { get; set; }
+    public string TablesToRender { get; set; } = "";
+    public bool Toggle { get; set; }
+
+    public List<string>? lstNameOfFilesForUpload { get; set; } = new();
+    public List<string>? lstNameOfFilesForHTML { get; set; } = new();
+
+    //Progress bar
+    public bool DisplayProgress { get; set; } = false;
+    public int ProgressPercent { get; set; } = 0;
+    public string ProgressText { get; set; } = "";
+    public string ProgressBarColour { get; set; } = "bg-info";
+
+    private User? User;
+
+    protected override void OnInitialized()
+    { 
+        User = StateContainer.User;
+        flagProcessFinished = false;
+
+        if (User != null)
+        {
+            if (User.UserId != 0)
+            {
+                //Logged user
+                Toggle = true;
+            }
+            else
+            {
+                //Not logged user
+                Toggle = false;
+            }
+        }
+        else
+        {
+            //Impossible
+            Toggle = false;
+        }
+
+        base.OnInitialized();
+    }
+
+    private async void UploadFile(InputFileChangeEventArgs e)
+    {
+
+        try
+        {
+            flagProcessFinished = false;
+            string fileForHTML = "";
+            List<bool> lstIsProcessFinished = [];
+            lstModalTitleToRender = [];
+            lstModalBodyToRender = [];
+            CommonFunctions CommonFunctions = new();
+
+            foreach (var file in e.GetMultipleFiles(e.FileCount))
+            {
+                if (file.Name.EndsWith(".pdf")
+                || file.Name.EndsWith(".png")
+                || file.Name.EndsWith(".jpg"))
+                {
+                    if (file.Size <= CommonFunctions.MaxFileSize)
+                    {
+                        //Basic configuration
+
+                        lstNameOfFilesForUpload?.Add(file.Name);
+                        string cleanedFileName = Regex.Replace(file.Name, @"[^a-z]", "");
+                        lstNameOfFilesForHTML?.Add(cleanedFileName);
+                        fileForHTML = file.Name;
+
+                        lstIsProcessFinished.Add(await Main(file));
+                    }
+                    else
+                    {
+                        ErrorMessage = $@" <i class=""fas fa-exclamation""></i>
+                                Solo se permiten archivos con un peso
+                                máximo de 3MB";
+                        break;
+                    }
+                }
+                else
+                {
+                    ErrorMessage = $@"<i class=""fas fa-exclamation""></i>
+                            Solo se aceptan archivos PDF, PNG o JPG";
+                    break;
+                }
+            }
+
+            foreach (bool isProcessFinished in lstIsProcessFinished)
+            {
+                if (isProcessFinished)
+                {
+                    flagProcessFinished = true;
+                }
+            }
+
+            if (flagProcessFinished)
+            {
+                ProgressText = "Análisis finalizado";
+                ProgressPercent = 100;
+                ProgressBarColour = "bg-success";
+            }
+            else
+            {
+                ProgressText = "Error en la carga y análisis";
+                ProgressPercent = 100;
+                ProgressBarColour = "bg-danger";
+            }
+
+            //Re-render the page to show ScannedText
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            ProgressText = "Error...";
+            ProgressPercent = 0;
+            ProgressBarColour = "bg-danger";
+            ErrorMessage = $@"<i class=""fas fa-exclamation""></i> {ex.Message}";
+        }
+        finally
+        {
+            //Re-render the page to show ScannedText
+            await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+        }
+    }
+
+    private async Task<bool> Main(IBrowserFile file)
+    {
+        try
+        {
+            //Basic configuration
+            ProgressBarColour = "bg-info";
+            ErrorMessage = "";
+            DisplayProgress = true;
+            CommonFunctions CommonFunctions = new();
+
+            string BucketName = "matiasnovillos3";
+            AmazonS3Client AmazonS3Client = new AmazonS3Client(
+                RegionEndpoint.USEast2);
+            AWS.Textract.Functions AWSTextractFunctions = new(
+                BucketName, AmazonS3Client);
+
+            //Save file in local server
+            ProgressText = $@"Subiendo archivo {file.Name} al servidor...";
+            ProgressPercent = 80;
+
+            await CommonFunctions.SaveFileInLocalServer(file);
+
+            //Log info
+            CustomLogger customLogger = new()
+                {
+                    DateTime = DateTime.Now,
+                    InteractionType = $@"Interacción del usuario",
+                    Description = $@"El usuario {User?.Email} ha subido el 
+                                    archivo {file.Name} para analizar,
+                                    al servidor local",
+                    UserId = User.UserId
+                };
+            await customLoggerRepository
+                .Add(customLogger, CancellationToken.None);
+
+            //Save file in AWS S3 storage
+            ProgressText = $@"Subiendo archivo {file.Name} a AWS S3...";
+            ProgressPercent = 81;
+
+            string FilePath = Path.Combine(
+                Environment.CurrentDirectory,
+                "wwwroot",
+                "Uploads",
+                file.Name);
+            new AWS.S3.Functions(BucketName, AmazonS3Client)
+            .SaveFileInAWSS3(FilePath);
+
+            //Log info
+            CustomLogger customLogger2 = new()
+                {
+                    DateTime = DateTime.Now,
+                    InteractionType = $@"Interacción del usuario",
+                    Description = $@"El usuario {User.Email} ha subido el 
+                                    archivo {file.Name} para analizar,
+                                    a AWS S3",
+                    UserId = User.UserId
+                };
+            await customLoggerRepository
+                .Add(customLogger2, CancellationToken.None);
+
+            //Scan file located in AWS S3 storage, to get text
+            ProgressText = $@"Analizando archivo {file.Name} con AWS Textract...";
+            ProgressPercent = 82;
+
+            ScannedText = await new AWS.Textract.Functions(BucketName, AmazonS3Client).ScanFileForLines(file.Name);
+
+            //Classify file
+            ProgressText = $@"Clasificando archivo {file.Name}...";
+            ProgressPercent = 83;
+            char BillOrDocument = ClassifyFile(ScannedText);
+
+            if (BillOrDocument == 'b') //Bill
+            {
+                ProgressText = $@"El archivo {file.Name} es una factura...";
+                ProgressPercent = 84;
+
+                AWS.Textract.DTOs.HeadersAndCells HeadersAndCells = 
+                await new AWS.Textract.Functions(BucketName, AmazonS3Client)
+                .ScanFileForTables(file.Name);
+
+                TablesToRender = CommonFunctions.CreateHTMLTables(HeadersAndCells);
+
+                List<KeyValuePair<string, string>> KeyValuePairResult = 
+                await new AWS.Textract.Functions(
+                    BucketName, AmazonS3Client)
+                    .ScanFileForForms(file.Name);
+
+                string ClientName = (from x in KeyValuePairResult
+                                     where x.Key.Trim() == "Cliente:"
+                                     select x.Value).FirstOrDefault();
+
+                string ClientAddress = (from x in KeyValuePairResult
+                                        where x.Key.Trim() == "Dirección del cliente:"
+                                        select x.Value).FirstOrDefault();
+
+                string ProviderName = (from x in KeyValuePairResult
+                                       where x.Key.Trim() == "Proveedor:"
+                                       select x.Value).FirstOrDefault();
+
+                string ProviderAddress = (from x in KeyValuePairResult
+                                          where x.Key.Trim() == "Dirección del proveedor:"
+                                          select x.Value).FirstOrDefault();
+
+                string BillingNumber = (from x in KeyValuePairResult
+                                        where x.Key.Trim() == "Nro. de factura:"
+                                        select x.Value).FirstOrDefault();
+
+                string BillingDate = (from x in KeyValuePairResult
+                                      where x.Key.Trim() == "Fecha:"
+                                      select x.Value).FirstOrDefault();
+
+                string BillingTotal = (from x in KeyValuePairResult
+                                       where x.Key.Trim() == "Total"
+                                       select x.Value).FirstOrDefault();
+
+                lstModalTitleToRender.Add($@"<i class=""fas fa-file""></i>
+                                        Documento: Factura");
+
+                lstModalBodyToRender.Add($@"
+<div class=""container"">
+    <ul class=""list-group mb-4"">
+        <li class=""list-group-item"">
+            <b>Nombre del cliente:</b> {ClientName}
+        </li>
+        <li class=""list-group-item"">
+            <b>Dirección del cliente:</b> {ClientAddress}
+        </li>
+        <li class=""list-group-item"">
+            <b>Nombre del proveedor:</b> {ProviderName}
+        </li>
+        <li class=""list-group-item"">
+            <b>Dirección del proveedor:</b> {ProviderAddress}
+        </li>
+        <li class=""list-group-item"">
+            <b>Nro. de factura:</b> {BillingNumber}
+        </li>
+        <li class=""list-group-item"">
+            <b>Fecha de la factura:</b> {BillingDate}
+        </li>
+        <li class=""list-group-item"">
+            <b>Total de la factura:</b> {BillingTotal}
+        </li>
+    </ul>
+    {TablesToRender}
+</div>");
+
+                //Save data in database
+                ProgressText = "Guardando datos en base de datos...";
+                ProgressPercent = 85;
+                Bill Bill = new()
+                {
+                    ClientName = ClientName ?? "",
+                    ClientAddress = ClientAddress ?? "",
+                    ProviderName = ProviderName ?? "",
+                    ProviderAddress = ProviderAddress ?? "",
+                    BillingNumber = BillingNumber ?? "",
+                    BillingDate = BillingDate ?? "",
+                    BillingTotal = BillingTotal ?? "",
+                        FileName = file.Name,
+                    FileURL = Path.Combine(Environment.CurrentDirectory, 
+                        "Uploads", 
+                            file.Name),
+                    UserId = StateContainer.User.UserId
+
+                };
+                await billRepository.Add(Bill, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger4 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"AWS Textract ha detectado que 
+                                        {file.Name} es una factura",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                    .Add(customLogger4, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger3 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Base de datos",
+                        Description = $@"Se ha guardado un nuevo registro en
+                                        la base de datos por una factura con
+                                        el nombre {file.Name} cargada",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                    .Add(customLogger3, CancellationToken.None);
+            }
+            else //Document
+            {
+                ProgressText = $@"El archivo {file.Name} es un documento...";
+                ProgressPercent = 86;
+
+                string GoogleAppCredentialsFilePath = "C:\\FiyiStack\\Test\\AWSTextract\\lustrous-router-409218-e98c8c9c38a8.json";
+                Google.NLP.Functions GoogleCloudNLPFunctions = new(GoogleAppCredentialsFilePath);
+
+                string AzureKeyCredential = "35d52c1dc04e4250a0a411a2eb0b5bb8";
+                string Uri = "https://textanalyticsmatiasnovillo.cognitiveservices.azure.com/";
+                Azure.TextAnalytics.Functions AzureTextAnalyticsFunctions = 
+                new(AzureKeyCredential, Uri);
+
+                //Log info
+                CustomLogger customLogger4 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"Se hizo un análisis de sentimiento y
+                                        extracción de palabras claves del archivo
+                                        {file.Name}",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                    .Add(customLogger4, CancellationToken.None);
+
+                List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
+                .ScanForSentiments(ScannedText);
+
+                List<string> lstResultsOfKeyWords = AzureTextAnalyticsFunctions
+                .ScanForKeyWords(ScannedText);
+
+                string ListOfSentimentsHTML = "";
+                foreach (string sentimentResult in lstResultsOfSentiments)
+                {
+                    ListOfSentimentsHTML += $@"<li class=""list-group-item"">
+                            {sentimentResult}
+                                                </li>";
+                }
+
+                string ListOfKeyWordsHTML = "";
+                foreach (string keyWordResult in lstResultsOfKeyWords)
+                {
+                    ListOfKeyWordsHTML += $@"<li class=""list-group-item"">
+                            {keyWordResult}
+                                                </li>";
+                }
+
+                //Save data in database
+                ProgressText = "Guardando datos en base de datos...";
+                ProgressPercent = 87;
+
+                string Sentiments = "";
+                foreach (string sentiment in lstResultsOfSentiments)
+                {
+                    Sentiments += $@"{sentiment}{Environment.NewLine}";
+                }
+
+                string KeyWords = "";
+                foreach (string keyWord in lstResultsOfKeyWords)
+                {
+                    KeyWords += $@"{keyWord}{Environment.NewLine}";
+                }
+
+                Document Document = new()
+                    {
+                        Description = "" ?? "",
+                        Resume = "" ?? "",
+                        KeyWord = KeyWords ?? "",
+                        Feeling = Sentiments ?? "",
+                        FileName = file.Name,
+                        FileURL = Path.Combine(Environment.CurrentDirectory,
+                                "wwwroot",
+                                "Uploads",
+                                    file.Name),
+                        UserId = StateContainer.User.UserId
+
+                    };
+                await documentRepository.Add(Document, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger3 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Base de datos",
+                        Description = $@"Se ha guardado un nuevo registro en
+                                        la base de datos por un documento con
+                                        el nombre {file.Name} cargado",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                    .Add(customLogger3, CancellationToken.None);
+
+                lstModalTitleToRender.Add($@"<i class=""fas fa-file""></i>
+                                        Documento: Documento (no es factura)");
+
+                lstModalBodyToRender.Add($@"
+<div class=""container"">
+    <h5><b>Análisis de sentimientos</b></h5>
+    <div class=""card mb-3"">
+        <ul class=""list-group list-group-flush"">
+    {ListOfSentimentsHTML}
+        </ul>
+    </div>
+    <h5><b>Análisis de palabras claves</b></h5>
+    <div class=""card mb-3"">
+        <ul class=""list-group list-group-flush"">
+    {ListOfKeyWordsHTML}
+        </ul>
+    </div>
+</div>");
+
+                //Log info
+                CustomLogger customLogger5 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"AWS Textract ha detectado que 
+                                        {file.Name} es un documento
+                                        (no es factura)",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                    .Add(customLogger5, CancellationToken.None);
+            }
+            return true;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public char ClassifyFile(string text)
+    {
+        string TextToLower = text.ToLower();
+        if (TextToLower.Contains("i.v.a") || TextToLower.Contains("iva"))
+        {
+            //Bill
+            return 'b';
+        }
+        else
+        {
+            //Document
+            return 'd';
+        }
+
+    }
+}

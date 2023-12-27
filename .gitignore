@@ -1,15 +1,22 @@
-/.vs
-/bin
-/obj
+/OneCore/bin
+/OneCore/obj
+/OneCore/.vs
 
-/wwwroot/Uploads
-/wwwroot/Downloads/CSVFiles
-/wwwroot/Downloads/PDFFiles
-/wwwroot/Downloads/ExcelFiles
+/OneCore/wwwroot/Uploads
+/OneCore/wwwroot/Downloads/CSVFiles
+/OneCore/wwwroot/Downloads/PDFFiles
+/OneCore/wwwroot/Downloads/ExcelFiles
 
-/Projects/AWS/bin
-/Projects/AWS/obj
-/Projects/Azure/bin
-/Projects/Azure/obj
-/Projects/Google/bin
-/Projects/Google/obj
+/Libraries/AWS/bin
+/Libraries/AWS/obj
+/Libraries/Azure/bin
+/Libraries/Azure/obj
+/Libraries/Google/bin
+/Libraries/Google/obj
+
+/Tests/AWS.Test/bin
+/Tests/AWS.Test/obj
+/Tests/Azure.Test/bin
+/Tests/Azure.Test/obj
+/Tests/Google.Test/bin
+/Tests/Google.Test/obj
