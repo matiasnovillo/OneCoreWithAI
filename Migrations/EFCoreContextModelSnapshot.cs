@@ -124,6 +124,9 @@ namespace OneCore.Migrations
                     b.Property<string>("FileURL")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("KeyWord")
+                        .HasColumnType("text");
+
                     b.Property<string>("Resume")
                         .HasColumnType("text");
 
@@ -146,12 +149,10 @@ namespace OneCore.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(380)
                         .HasColumnType("nvarchar(380)");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");

@@ -1,4 +1,7 @@
 /.vs
 /bin
 /obj
-/Uploads
+/wwwroot/Uploads
+/wwwroot/Downloads/CSVFiles
+/wwwroot/Downloads/PDFFiles
+/wwwroot/Downloads/ExcelFiles

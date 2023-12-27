@@ -27,18 +27,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="OpenTextSummarizer" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Backup\" />
     <Folder Include="wwwroot\Downloads\ExcelFiles\" />
     <Folder Include="wwwroot\Uploads\" />
     <Folder Include="wwwroot\Downloads\CSVFiles\" />
     <Folder Include="wwwroot\Downloads\PDFFiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="Projects\OpenTextSummarizer.Core\OpenTextSummarizer.csproj" />
   </ItemGroup>
 
 </Project>

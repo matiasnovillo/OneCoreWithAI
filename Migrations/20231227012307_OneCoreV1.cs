@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OneCore.Migrations
 {
     /// <inheritdoc />
-    public partial class OneCore1 : Migration
+    public partial class OneCoreV1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,8 +17,8 @@ namespace OneCore.Migrations
                 {
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(380)", maxLength: 380, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Email = table.Column<string>(type: "nvarchar(380)", maxLength: 380, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -86,6 +86,7 @@ namespace OneCore.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     Resume = table.Column<string>(type: "text", nullable: true),
                     Feeling = table.Column<string>(type: "text", nullable: true),
+                    KeyWord = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -102,7 +103,7 @@ namespace OneCore.Migrations
             migrationBuilder.InsertData(
                 table: "User",
                 columns: new[] { "UserId", "Email", "Password" },
-                values: new object[] { 1, "novillo.matias1@gmail.com", "z" });
+                values: new object[] { 1, "novillo.matias1@gmail.com", "Pq5FM4q7dDtlZBGcn0w8P0XjnEPDlTCcLUY5/bWVcuVJ4/kXRyHp62hPgry0R/ur+kEspHc+HK6XqqvA8OLXLw==" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bill_UserId",

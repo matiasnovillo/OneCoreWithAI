@@ -4,7 +4,20 @@ namespace OneCore.CommonFunctions
 {
     public class GoogleCloudNLPFunctions
     {
-        public string GoogleAppCredentialsFile = "C:\\FiyiStack\\Test\\AWSTextract\\lustrous-router-409218-e98c8c9c38a8.json";
+        /// <summary>
+        /// Estas credenciales estan fuera del repositorio de Github,
+        /// para mayor seguridad
+        /// </summary>
+        public readonly string GoogleAppCredentialsFile = "C:\\FiyiStack\\Test\\AWSTextract\\lustrous-router-409218-e98c8c9c38a8.json";
+        
+        /// <summary>
+        /// Esta función que provee Google Cloud NLP permite extraer textos y
+        /// analizar mediante una puntuación el sentimiento encontrado
+        /// </summary>
+        /// <param name="textToAnalyze">Texto extraido del documento a 
+        /// analizar</param>
+        /// <returns>Retorna una lista de textos con dos componentes,
+        /// el texto analizado y la puntuación de sentimiento</returns>
         public List<string> ScanForSentiments(string textToAnalyze)
         {
             try

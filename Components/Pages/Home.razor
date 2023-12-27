@@ -11,7 +11,7 @@
 <div class="container">
     <div class="card mb-3">
         <div class="card-header">
-            <img src="/img/OneCoreLogo.png" />
+            <img class="d-none d-sm-inline" src="/img/OneCoreLogo.png" />
         </div>
         <div class="card-body">
             <h3>Análisis de archivos con IA</h3>
@@ -23,8 +23,8 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-4">
-            <div class="card bg-light">
+        <div class="col-12 col-md-4">
+            <div class="card bg-light mt-3">
                 <div class="card-body">
                     @if (!Toggle)
                     {
@@ -92,9 +92,9 @@
                 </div>
             </div>
         </div>
-        <div class="col-8">
-            <div class="card bg-light">
-                <img src="/img/NETyAWS.png" class="card-img-top mb-4"
+        <div class="col-12 col-md-8">
+            <div class="card bg-light my-3">
+                <img src="/img/NETyAWS.png" class="card-img-top mb-4 d-none d-md-inline"
                      width="350" alt="logos">
                 <div class="card-body">
                     <ul class="list-group list-group-flush mb-3">
@@ -207,6 +207,12 @@
                             </h5>
                         </li>
                         <li class="list-group-item bg-light">
+                            No se pudo dar con la descripción ni resumen de documentos
+                            que no sean facturas. Ver la tabla de 
+                            <a class="btn-link text-danger" href="#tabla">IA's exploradas</a> 
+                            imposibles de usar
+                        </li>
+                        <li class="list-group-item bg-light">
                             No se usa sesión ni en el servidor ni el
                             buscador, para pasar información entre
                             componentes/páginas se usa un servicio alojado
@@ -216,6 +222,24 @@
                             El diseño de la aplicación esta totalmente
                             en castellano, pero el código esta todo en
                             ingles
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para ingresar a la aplicación, accede con estas 
+                            credenciales:
+                            <code><b>Email: novillo.matias1@gmail.com</b></code> y
+                            <code><b>Contraseña: z</b></code>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para levantar la base de datos localmente puedes 
+                            hacerlo de dos maneras, levantando el backup 
+                            <code><b>OneCore.bak</b></code> alojado en la carpeta
+                            <code><b>/Backup</b></code>. La segunda forma es
+                            ejecutando el comando <code><b>Update-Database</b></code>
+                            en la Consola del administrador de paquetes. Si no
+                            funciona esta segunda forma quizás debas ejecutar primero
+                            el comando 
+                            <code><b>Add-Migration nombrecualquiera</b></code> y luego,
+                            ejecutar nuevamente el comando <code><b>Update-Database</b></code>
                         </li>
                     </ul>
                     <ul class="list-group list-group-flush mb-3">
@@ -228,6 +252,11 @@
                         </li>
                         <li class="list-group-item bg-light">
                             Sistema de login con email y contraseña
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Aplicación totalmente responsive gracias a las clases de
+                            Bootstrap 5. Solo hay defectos al mostrar tablas en
+                            pequeñas pantallas
                         </li>
                         <li class="list-group-item bg-light">
                             En la página de log, se puede descargar,
@@ -285,6 +314,100 @@
                             es sumamente necesario
                         </li>
                     </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h4 id="tabla"><b>IA's exploradas imposibles de usar</b></h4>
+                </div>
+                <div class="card-body">
+                    <p>Quiero recalcar que las siguientes IA's fueron buscadas
+                        y analizadas para ser usadas pero no hubo efecto con ellas.
+                        En la siguiente tabla explico la razón de porque estas no
+                        son posibles de usar
+                    </p>
+                    <table class="table table-striped table-hover table-responsive">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Razón de desuso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Claude</td>
+                                <td>No sirve, es como ChatGPT, y cobran por su uso</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>ChatGPT</td>
+                                <td>Cobran y creo que no ofrecen las funcionalidades requeridas</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>Copilot de Github</td>
+                                <td>No es para resumir o extraer información clave de texto, es más
+                                    bien utilizada para ayudar a desarrolladores a hacer código
+                                    más rápido
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4</th>
+                                <td>OpenTextSummarizer</td>
+                                <td>
+                                    Pude utilizarla casi con éxito pero la salida es código binario
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">5</th>
+                                <td>T5</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">6</th>
+                                <td>Bart</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes, en C# no
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">7</th>
+                                <td>T5</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes, en C# no
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">8</th>
+                                <td>BlackBox AI</td>
+                                <td>
+                                    No sirve para estos casos, es como ChatGPT
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">9</th>
+                                <td>Whisper</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes, en C# no
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">10</th>
+                                <td>GPT-3</td>
+                                <td>
+                                    Es de OpenAI, por lo tanto cobra, además no ofrece nada para C#
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -374,7 +497,7 @@
                         InteractionType = $@"Interacción del usuario",
                         Description = $@"Un usuario ha intentado entrar al
                                         sistema pero no pudo",
-                        UserId = 0
+                        UserId = 1
                     };
                 await customLoggerRepository
                 .Add(customLogger, CancellationToken.None);

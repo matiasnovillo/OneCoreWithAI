@@ -31,7 +31,7 @@ namespace OneCore.Entities.Configuration
             modelBuilder.Entity<User>().HasData(new User { 
                 UserId = 1,
                 Email = "novillo.matias1@gmail.com",
-                Password = "z"
+                Password = "Pq5FM4q7dDtlZBGcn0w8P0XjnEPDlTCcLUY5/bWVcuVJ4/kXRyHp62hPgry0R/ur+kEspHc+HK6XqqvA8OLXLw=="
             });
         }
     }
