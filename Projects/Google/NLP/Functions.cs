@@ -1,15 +1,15 @@
 ﻿using Google.Cloud.Language.V1;
 
-namespace OneCore.CommonFunctions
+namespace Google.NLP
 {
-    public class GoogleCloudNLPFunctions
+    public class Functions
     {
         /// <summary>
         /// Estas credenciales estan fuera del repositorio de Github,
         /// para mayor seguridad
         /// </summary>
         public readonly string GoogleAppCredentialsFile = "C:\\FiyiStack\\Test\\AWSTextract\\lustrous-router-409218-e98c8c9c38a8.json";
-        
+
         /// <summary>
         /// Esta función que provee Google Cloud NLP permite extraer textos y
         /// analizar mediante una puntuación el sentimiento encontrado
@@ -26,7 +26,7 @@ namespace OneCore.CommonFunctions
 
                 //Set credentials
                 Environment
-                    .SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", 
+                    .SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS",
                     GoogleAppCredentialsFile);
 
                 var client = LanguageServiceClient.Create();
@@ -58,3 +58,4 @@ namespace OneCore.CommonFunctions
         }
     }
 }
+

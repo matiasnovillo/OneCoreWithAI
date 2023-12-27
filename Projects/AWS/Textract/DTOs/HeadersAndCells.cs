@@ -1,11 +1,11 @@
-﻿namespace OneCore.CommonFunctions.DTOs
+﻿namespace AWS.Textract.DTOs
 {
-    public class BillDTO
+    public class HeadersAndCells
     {
         public List<string> lstHeader { get; set; }
         public List<string> lstCell { get; set; }
 
-        public BillDTO(List<string> lstHeader, List<string> lstCell)
+        public HeadersAndCells(List<string> lstHeader, List<string> lstCell)
         {
             this.lstHeader = lstHeader;
             this.lstCell = lstCell;

@@ -5,17 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.300.24" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.304.13" />
-    <PackageReference Include="AWSSDK.Textract" Version="3.7.300.24" />
     <PackageReference Include="Azure.AI.TextAnalytics" Version="5.3.0" />
     <PackageReference Include="ClosedXML" Version="0.102.1" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="Google.Cloud.Language.V1" Version="3.3.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.57" />
     <PackageReference Include="IronPdf" Version="2023.12.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
@@ -31,10 +28,17 @@
 
   <ItemGroup>
     <Folder Include="Backup\" />
+    <Folder Include="CommonFunctions\DTOs\" />
     <Folder Include="wwwroot\Downloads\ExcelFiles\" />
     <Folder Include="wwwroot\Uploads\" />
     <Folder Include="wwwroot\Downloads\CSVFiles\" />
     <Folder Include="wwwroot\Downloads\PDFFiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Projects\AWS\AWS.csproj" />
+    <ProjectReference Include="Projects\Azure\Azure.csproj" />
+    <ProjectReference Include="Projects\Google\Google.csproj" />
   </ItemGroup>
 
 </Project>

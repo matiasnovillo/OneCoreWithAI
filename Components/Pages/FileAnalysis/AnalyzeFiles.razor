@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @using System.Text;
 @using System.IO;
-@using OneCore.CommonFunctions.DTOs;
 @using OneCore.Repositories;
 @using OneCore.Entities;
 @using OneCore.CommonFunctions;
@@ -285,7 +284,7 @@ else
             ErrorMessage = "";
             DisplayProgress = true;
             CommonFunctions CommonFunctions = new();
-            AWSTextractFunctions AWSTextractFunctions = new();
+            AWS.Textract.Functions AWSTextractFunctions = new();
 
             //Save file in local server
             ProgressText = $@"Subiendo archivo {file.Name} al servidor...";
@@ -309,7 +308,7 @@ else
             //Save file in AWS S3 storage
             ProgressText = $@"Subiendo archivo {file.Name} a AWS S3...";
             ProgressPercent = 81;
-            AWSTextractFunctions.SaveFileInAWSS3(file.Name);
+            new AWS.Textract.Functions().SaveFileInAWSS3(file.Name);
 
             //Log info
             CustomLogger customLogger2 = new()
@@ -327,7 +326,7 @@ else
             //Scan file located in AWS S3 storage, to get text
             ProgressText = $@"Analizando archivo {file.Name} con AWS Textract...";
             ProgressPercent = 82;
-            ScannedText = await AWSTextractFunctions.ScanFileForLines(file.Name);
+            ScannedText = await new AWS.Textract.Functions().ScanFileForLines(file.Name);
 
             //Classify file
             ProgressText = $@"Clasificando archivo {file.Name}...";
@@ -339,13 +338,13 @@ else
                 ProgressText = $@"El archivo {file.Name} es una factura...";
                 ProgressPercent = 84;
 
-                BillDTO billDTO = await AWSTextractFunctions.
+                AWS.Textract.DTOs.HeadersAndCells HeadersAndCells = await new AWS.Textract.Functions().
                 ScanFileForTables(file.Name);
 
-                TablesToRender = CommonFunctions.CreateHTMLTables(billDTO);
+                TablesToRender = CommonFunctions.CreateHTMLTables(HeadersAndCells);
 
                 List<KeyValuePair<string, string>> KeyValuePairResult = 
-                await AWSTextractFunctions.ScanFileForForms(file.Name);
+                await new AWS.Textract.Functions().ScanFileForForms(file.Name);
 
                 string ClientName = (from x in KeyValuePairResult
                                      where x.Key.Trim() == "Cliente:"
@@ -458,8 +457,8 @@ else
                 ProgressPercent = 86;
 
 
-                GoogleCloudNLPFunctions GoogleCloudNLPFunctions = new();
-                AzureTextAnalyticsFunctions AzureTextAnalyticsFunctions = new();
+                Google.NLP.Functions GoogleCloudNLPFunctions = new();
+                Azure.TextAnalytics.Functions AzureTextAnalyticsFunctions = new();
 
                 //Log info
                 CustomLogger customLogger4 = new()
@@ -474,10 +473,10 @@ else
                 await customLoggerRepository
                     .Add(customLogger4, CancellationToken.None);
 
-                List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
+                List<string> lstResultsOfSentiments = new Google.NLP.Functions()
                 .ScanForSentiments(ScannedText);
 
-                List<string> lstResultsOfKeyWords = AzureTextAnalyticsFunctions
+                List<string> lstResultsOfKeyWords = new Azure.TextAnalytics.Functions()
                 .ScanForKeyWords(ScannedText);
 
                 string ListOfSentimentsHTML = "";

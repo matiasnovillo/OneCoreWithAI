@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using System.Text;
 using System.Security.Cryptography;
-using OneCore.CommonFunctions.DTOs;
 
 namespace OneCore.CommonFunctions
 {
@@ -46,13 +45,13 @@ namespace OneCore.CommonFunctions
             catch (Exception) { throw; }
         }
 
-        public string CreateHTMLTables(BillDTO billDTO)
+        public string CreateHTMLTables(AWS.Textract.DTOs.HeadersAndCells headersAndCells)
         {
             string TablesToRender = $@"
 <table class=""table table-striped table-hover table-bordered table-responsive"">
     <thead>
         <tr>";
-            foreach (string header in billDTO.lstHeader)
+            foreach (string header in headersAndCells.lstHeader)
             {
                 TablesToRender += $@"
             <th scope=""col"">{header}</th>";
@@ -63,7 +62,7 @@ namespace OneCore.CommonFunctions
     <tbody>
         
         <tr>";
-            foreach (string cell in billDTO.lstCell)
+            foreach (string cell in headersAndCells.lstCell)
             {
                 TablesToRender += $@"
             <td>{cell}</td>";

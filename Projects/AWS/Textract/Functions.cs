@@ -2,11 +2,11 @@
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using Amazon.Textract;
-using OneCore.CommonFunctions.DTOs;
+using AWS.Textract.DTOs;
 
-namespace OneCore.CommonFunctions
+namespace AWS.Textract
 {
-    public class AWSTextractFunctions
+    public class Functions
     {
         /// <summary>
         /// Nombre de la instancia de base de datos AWS S3
@@ -114,7 +114,7 @@ namespace OneCore.CommonFunctions
         /// <returns>Devuelve un objeto BillDTO el cual es rellenado en esta
         /// función con 2 listas, una lista de encabezados encontrados, y otra lista
         /// con celdas encontradas</returns>
-        public async Task<BillDTO> ScanFileForTables(string objectName)
+        public async Task<HeadersAndCells> ScanFileForTables(string objectName)
         {
             try
             {
@@ -188,7 +188,7 @@ namespace OneCore.CommonFunctions
                         }
                     }
                 }
-                return new BillDTO(lstHeader, lstCell);
+                return new HeadersAndCells(lstHeader, lstCell);
             }
             catch (Exception)
             {

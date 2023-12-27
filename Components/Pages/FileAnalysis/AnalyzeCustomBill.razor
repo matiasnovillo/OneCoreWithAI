@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @using System.Text
 @using System.IO;
-@using OneCore.CommonFunctions.DTOs;
 @using OneCore.Repositories;
 @using OneCore.Entities;
 @using OneCore.CommonFunctions;
@@ -201,7 +200,7 @@ else
             ErrorMessage = "";
             DisplayProgress = true;
             CommonFunctions CommonFunctions = new();
-            AWSTextractFunctions AWSTextractFunctions = new();
+            AWS.Textract.Functions AWSTextractFunctions = new();
 
             //Save file in local server
             ProgressText = "Subiendo archivo al servidor...";
@@ -218,7 +217,7 @@ else
             ProgressText = "Analizando archivo con AWS Textract...";
             ProgressPercent = 82;
             List<KeyValuePair<string, string>> lstResults = 
-            await AWSTextractFunctions.
+            await new AWS.Textract.Functions().
             ScanFileForLinesAndWordsCustom(e.File.Name);
 
             ProgressText = "El archivo es una factura customizada...";

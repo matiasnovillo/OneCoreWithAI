@@ -1,16 +1,15 @@
-﻿using Azure;
-using Azure.AI.TextAnalytics;
+﻿using Azure.AI.TextAnalytics;
 
-namespace OneCore.CommonFunctions
+namespace Azure.TextAnalytics
 {
-    public class AzureTextAnalyticsFunctions
+    public class Functions
     {
         /// <summary>
         /// Este objeto es utilizado para proveer las credenciales correctas
         /// a la plataforma Azure
         /// </summary>
         private readonly AzureKeyCredential AzureKeyCredential = new("35d52c1dc04e4250a0a411a2eb0b5bb8");
-        
+
         /// <summary>
         /// Esta es la URL a la cual se conecta la aplicación para enviar
         /// el texto a analizar
@@ -26,8 +25,8 @@ namespace OneCore.CommonFunctions
         /// <returns>Lo que retorna es una lista de palabras claves</returns>
         public List<string> ScanForKeyWords(string textToAnalyze)
         {
-			try
-			{
+            try
+            {
                 List<string> lstResults = [];
                 var client = new TextAnalyticsClient(Uri, AzureKeyCredential);
 
@@ -40,10 +39,10 @@ namespace OneCore.CommonFunctions
 
                 return lstResults;
             }
-			catch (Exception)
-			{
-				throw;
-			}
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
