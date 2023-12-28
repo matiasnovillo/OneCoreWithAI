@@ -1,7 +1,6 @@
 ﻿using Amazon;
 using Amazon.S3;
 using AWS.Textract;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace AWS.Test
 {
