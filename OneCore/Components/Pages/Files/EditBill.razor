@@ -140,6 +140,7 @@ else
 }
 
 @code {
+    #region Properties
     [Parameter]
     public int BillId { get; set; }
 
@@ -153,6 +154,7 @@ else
     public Bill? Bill { get; set; }
 
     public User? User { get; set; }
+    #endregion
 
     protected override void OnInitialized()
     {

@@ -149,6 +149,7 @@ else
 
 
 @code {
+    #region Properties
     public bool flagProcessFinished { get; set; }
     public string ScannedText { get; set; } = "";
     public string ErrorMessage { get; set; } = "";
@@ -167,7 +168,8 @@ else
     public string ProgressBarColour { get; set; } = "bg-info";
 
     private User? User;
-
+    #endregion
+    
     protected override void OnInitialized()
     { 
         User = StateContainer.User;
@@ -351,16 +353,17 @@ else
 
             if (BillOrDocument == 'b') //Bill
             {
+                #region Bill
                 ProgressText = $@"El archivo {file.Name} es una factura...";
                 ProgressPercent = 84;
 
-                AWS.Textract.DTOs.HeadersAndCells HeadersAndCells = 
+                AWS.Textract.DTOs.HeadersAndCells HeadersAndCells =
                 await new AWS.Textract.Functions(BucketName, AmazonS3Client)
                 .ScanFileForTables(file.Name);
 
                 TablesToRender = CommonFunctions.CreateHTMLTables(HeadersAndCells);
 
-                List<KeyValuePair<string, string>> KeyValuePairResult = 
+                List<KeyValuePair<string, string>> KeyValuePairResult =
                 await new AWS.Textract.Functions(
                     BucketName, AmazonS3Client)
                     .ScanFileForForms(file.Name);
@@ -428,21 +431,21 @@ else
                 ProgressText = "Guardando datos en base de datos...";
                 ProgressPercent = 85;
                 Bill Bill = new()
-                {
-                    ClientName = ClientName ?? "",
-                    ClientAddress = ClientAddress ?? "",
-                    ProviderName = ProviderName ?? "",
-                    ProviderAddress = ProviderAddress ?? "",
-                    BillingNumber = BillingNumber ?? "",
-                    BillingDate = BillingDate ?? "",
-                    BillingTotal = BillingTotal ?? "",
+                    {
+                        ClientName = ClientName ?? "",
+                        ClientAddress = ClientAddress ?? "",
+                        ProviderName = ProviderName ?? "",
+                        ProviderAddress = ProviderAddress ?? "",
+                        BillingNumber = BillingNumber ?? "",
+                        BillingDate = BillingDate ?? "",
+                        BillingTotal = BillingTotal ?? "",
                         FileName = file.Name,
-                    FileURL = Path.Combine(Environment.CurrentDirectory, 
-                        "Uploads", 
-                            file.Name),
-                    UserId = StateContainer.User.UserId
+                        FileURL = Path.Combine(Environment.CurrentDirectory,
+                            "Uploads",
+                                file.Name),
+                        UserId = StateContainer.User.UserId
 
-                };
+                    };
                 await billRepository.Add(Bill, CancellationToken.None);
 
                 //Log info
@@ -450,7 +453,7 @@ else
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
-                        Description = $@"AWS Textract ha detectado que 
+                        Description = $@"AWS Textract ha detectado que
                                         {file.Name} es una factura",
                         UserId = User.UserId
                     };
@@ -469,9 +472,11 @@ else
                     };
                 await customLoggerRepository
                     .Add(customLogger3, CancellationToken.None);
+                #endregion
             }
             else //Document
             {
+                #region Document
                 ProgressText = $@"El archivo {file.Name} es un documento...";
                 ProgressPercent = 86;
 
@@ -480,7 +485,7 @@ else
 
                 string AzureKeyCredential = "35d52c1dc04e4250a0a411a2eb0b5bb8";
                 string Uri = "https://textanalyticsmatiasnovillo.cognitiveservices.azure.com/";
-                Azure.TextAnalytics.Functions AzureTextAnalyticsFunctions = 
+                Azure.TextAnalytics.Functions AzureTextAnalyticsFunctions =
                 new(AzureKeyCredential, Uri);
 
                 List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
@@ -493,7 +498,7 @@ else
                 foreach (string sentimentResult in lstResultsOfSentiments)
                 {
                     ListOfSentimentsHTML += $@"<li class=""list-group-item"">
-                        {sentimentResult}
+                    {sentimentResult}
                                                 </li>";
                 }
 
@@ -501,7 +506,7 @@ else
                 foreach (string keyWordResult in lstResultsOfKeyWords)
                 {
                     ListOfKeyWordsHTML += $@"<li class=""list-group-item"">
-                        {keyWordResult}
+                    {keyWordResult}
                                                 </li>";
                 }
 
@@ -555,9 +560,9 @@ else
                         Feeling = Sentiments ?? "",
                         FileName = file.Name,
                         FileURL = Path.Combine(Environment.CurrentDirectory,
-                                "wwwroot",
-                                "Uploads",
-                                    file.Name),
+                                    "wwwroot",
+                                    "Uploads",
+                                        file.Name),
                         UserId = StateContainer.User.UserId
 
                     };
@@ -584,10 +589,10 @@ else
     <h5><b>Resumen</b></h5>
     <div class=""card mb-3"">
         <textarea
-            type=""text"" 
+            type=""text""
             class=""form-control""
             rows=""20"">
-            {SummaryResult}
+        {SummaryResult}
         </textarea>
     </div>
     <h5><b>Descripción</b></h5>
@@ -596,7 +601,7 @@ else
             type=""text""
             class=""form-control""
             rows=""20"">
-        {DescribedTextResult}
+    {DescribedTextResult}
         </textarea>
     </div>
     <h5><b>Análisis de sentimientos</b></h5>
@@ -618,7 +623,7 @@ else
                     {
                         DateTime = DateTime.Now,
                         InteractionType = $@"IA",
-                        Description = $@"AWS Textract ha detectado que 
+                        Description = $@"AWS Textract ha detectado que
                                         {file.Name} es un documento
                                         (no es factura)",
                         UserId = User.UserId
@@ -638,6 +643,7 @@ else
                     };
                 await customLoggerRepository
                     .Add(customLogger4, CancellationToken.None);
+                #endregion
             }
             return true;
         }

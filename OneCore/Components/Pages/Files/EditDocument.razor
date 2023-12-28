@@ -123,6 +123,7 @@ else
 }
 
 @code {
+    #region Properties
     [Parameter]
     public int DocumentId { get; set; }
 
@@ -136,6 +137,7 @@ else
     public Document? Document { get; set; }
 
     public User? User { get; set; }
+    #endregion
 
     protected override void OnInitialized()
     {

@@ -173,6 +173,7 @@ else
 }
 
 @code {
+    #region Properties
     public int TotalRowsForDocument { get; set; } = 0;
     public int TotalRowsForBill { get; set; } = 0;
 
@@ -189,7 +190,8 @@ else
 
     private List<Document?>? lstDocument { get; set; }
     private List<Bill?>? lstBill { get; set; }
-
+    #endregion
+    
     protected override void OnInitialized()
     {
         User = StateContainer.User;
@@ -225,6 +227,7 @@ else
         base.OnInitialized();
     }
 
+    #region Events
     private void SearchTextForDocument(ChangeEventArgs args)
     {
         try
@@ -233,8 +236,8 @@ else
             SuccessMessage = "";
 
             lstDocument = documentRepository
-            .GetAllByFileName(args.Value.ToString(), 
-            checkStrictForDocument, 
+            .GetAllByFileName(args.Value.ToString(),
+            checkStrictForDocument,
             CancellationToken.None);
 
             TotalRowsForDocument = lstDocument.Count();
@@ -255,8 +258,8 @@ else
             SuccessMessage = "";
 
             lstBill = billRepository
-            .GetAllByFileName(args.Value.ToString(), 
-            checkStrictForBill, 
+            .GetAllByFileName(args.Value.ToString(),
+            checkStrictForBill,
             CancellationToken.None);
 
             TotalRowsForBill = lstBill.Count();
@@ -315,4 +318,5 @@ else
                             Mensaje de error: {ex.Message}";
         }
     }
+    #endregion 
 }

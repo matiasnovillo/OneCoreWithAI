@@ -96,6 +96,7 @@ else
 }
 
 @code {
+    #region Properties
     public int TotalRows { get; set; } = 0;
 
     public bool checkStrict { get; set; }
@@ -110,7 +111,8 @@ else
 
     private User? User;
     private List<User?>? lstUser { get; set; }
-
+    #endregion
+    
     protected override void OnInitialized()
     {
         User = StateContainer.User;
@@ -140,6 +142,7 @@ else
         base.OnInitialized();
     }
 
+    #region Events
     private void SearchText(ChangeEventArgs args)
     {
         try
@@ -154,7 +157,7 @@ else
         }
         catch (Exception ex)
         {
-            ErrorMessage = $@"Hubo un error. Intenta nuevamente. 
+            ErrorMessage = $@"Hubo un error. Intenta nuevamente.
                             Mensaje de error: {ex.Message}";
         }
 
@@ -184,4 +187,5 @@ else
                             Mensaje de error: {ex.Message}";
         }
     }
+    #endregion
 }
