@@ -106,5 +106,36 @@ namespace OneCore.CommonFunctions
                 throw;
             }
         }
+
+        public string DescribeTextWithPython(
+            string textToAnalyze,
+            string pythonExecutablePath,
+            string pythonScriptToExecutePath)
+        {
+            try
+            {
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = pythonExecutablePath,
+                    Arguments = $"\"{pythonScriptToExecutePath}\" \"{textToAnalyze}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+
+                using Process proceso = new();
+                proceso.StartInfo = startInfo;
+                proceso.Start();
+
+                string Result = proceso.StandardOutput.ReadToEnd();
+
+                proceso.WaitForExit();
+
+                return Result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

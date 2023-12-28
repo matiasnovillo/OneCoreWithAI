@@ -524,7 +524,7 @@ else
                 //Path to Python executable
                 string PythonExecutablePath = "C:\\Program Files\\Python312\\python.exe";
                 //Path to Python script
-                string PythonScriptToExecutePath = Path.Combine(
+                string PythonScriptSummarizeToExecutePath = Path.Combine(
                 Environment.CurrentDirectory,
                 "CommonFunctions",
                 "PythonScript",
@@ -533,12 +533,24 @@ else
                 string SummaryResult = CommonFunctions
                     .SummarizeTextWithPython(ScannedText,
                     PythonExecutablePath,
-                    PythonScriptToExecutePath);
+                    PythonScriptSummarizeToExecutePath);
+
+                //Path to Python script
+                string PythonScriptDescribeToExecutePath = Path.Combine(
+                Environment.CurrentDirectory,
+                "CommonFunctions",
+                "PythonScript",
+                "DescribeText.py");
+
+                string DescribedTextResult = CommonFunctions
+                    .DescribeTextWithPython(ScannedText,
+                    PythonExecutablePath,
+                    PythonScriptDescribeToExecutePath);
 
                 Document Document = new()
                     {
-                        Description = "" ?? "",
-                        Resume = "" ?? "",
+                        Description = DescribedTextResult ?? "",
+                        Resume = SummaryResult ?? "",
                         KeyWord = KeyWords ?? "",
                         Feeling = Sentiments ?? "",
                         FileName = file.Name,
@@ -576,6 +588,15 @@ else
             class=""form-control""
             rows=""20"">
             {SummaryResult}
+        </textarea>
+    </div>
+    <h5><b>Descripción</b></h5>
+    <div class=""card mb-3"">
+        <textarea
+            type=""text""
+            class=""form-control""
+            rows=""20"">
+        {DescribedTextResult}
         </textarea>
     </div>
     <h5><b>Análisis de sentimientos</b></h5>
