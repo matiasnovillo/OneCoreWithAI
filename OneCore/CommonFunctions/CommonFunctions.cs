@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using System.Text;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace OneCore.CommonFunctions
 {
@@ -73,6 +74,37 @@ namespace OneCore.CommonFunctions
 </table>";
 
             return TablesToRender;
+        }
+    
+        public string SummarizeTextWithPython(
+            string textToAnalyze,
+            string pythonExecutablePath,
+            string pythonScriptToExecutePath)
+        {
+            try
+            {
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = pythonExecutablePath,
+                    Arguments = $"\"{pythonScriptToExecutePath}\" \"{textToAnalyze}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+
+                using Process proceso = new();
+                proceso.StartInfo = startInfo;
+                proceso.Start();
+
+                string Result = proceso.StandardOutput.ReadToEnd();
+
+                proceso.WaitForExit();
+
+                return Result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

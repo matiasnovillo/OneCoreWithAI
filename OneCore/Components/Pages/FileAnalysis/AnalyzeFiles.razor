@@ -483,19 +483,6 @@ else
                 Azure.TextAnalytics.Functions AzureTextAnalyticsFunctions = 
                 new(AzureKeyCredential, Uri);
 
-                //Log info
-                CustomLogger customLogger4 = new()
-                    {
-                        DateTime = DateTime.Now,
-                        InteractionType = $@"IA",
-                        Description = $@"Se hizo un análisis de sentimiento y
-                                        extracción de palabras claves del archivo
-                                        {file.Name}",
-                        UserId = User.UserId
-                    };
-                await customLoggerRepository
-                    .Add(customLogger4, CancellationToken.None);
-
                 List<string> lstResultsOfSentiments = GoogleCloudNLPFunctions
                 .ScanForSentiments(ScannedText);
 
@@ -506,7 +493,7 @@ else
                 foreach (string sentimentResult in lstResultsOfSentiments)
                 {
                     ListOfSentimentsHTML += $@"<li class=""list-group-item"">
-                            {sentimentResult}
+                        {sentimentResult}
                                                 </li>";
                 }
 
@@ -514,7 +501,7 @@ else
                 foreach (string keyWordResult in lstResultsOfKeyWords)
                 {
                     ListOfKeyWordsHTML += $@"<li class=""list-group-item"">
-                            {keyWordResult}
+                        {keyWordResult}
                                                 </li>";
                 }
 
@@ -533,6 +520,20 @@ else
                 {
                     KeyWords += $@"{keyWord}{Environment.NewLine}";
                 }
+
+                //Path to Python executable
+                string PythonExecutablePath = "C:\\Program Files\\Python312\\python.exe";
+                //Path to Python script
+                string PythonScriptToExecutePath = Path.Combine(
+                Environment.CurrentDirectory,
+                "CommonFunctions",
+                "PythonScript",
+                "SummarizeText.py");
+
+                string SummaryResult = CommonFunctions
+                    .SummarizeTextWithPython(ScannedText,
+                    PythonExecutablePath,
+                    PythonScriptToExecutePath);
 
                 Document Document = new()
                     {
@@ -568,6 +569,15 @@ else
 
                 lstModalBodyToRender.Add($@"
 <div class=""container"">
+    <h5><b>Resumen</b></h5>
+    <div class=""card mb-3"">
+        <textarea
+            type=""text"" 
+            class=""form-control""
+            rows=""20"">
+            {SummaryResult}
+        </textarea>
+    </div>
     <h5><b>Análisis de sentimientos</b></h5>
     <div class=""card mb-3"">
         <ul class=""list-group list-group-flush"">
@@ -594,6 +604,19 @@ else
                     };
                 await customLoggerRepository
                     .Add(customLogger5, CancellationToken.None);
+
+                //Log info
+                CustomLogger customLogger4 = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"IA",
+                        Description = $@"Se hizo un análisis de sentimiento,
+                                        extracción de palabras claves y resumen del archivo
+                                        {file.Name}",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                    .Add(customLogger4, CancellationToken.None);
             }
             return true;
         }
