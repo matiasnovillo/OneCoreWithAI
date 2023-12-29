@@ -20,6 +20,11 @@ namespace OneCore.Repositories
         }
 
         #region Queries
+        public async Task<int> Count(CancellationToken cancellationToken)
+        {
+            return await _context.User.CountAsync();
+        }
+
         public User? GetById(int userId, CancellationToken cancellationToken)
         {
             return _context.User.FirstOrDefault(u => u.UserId == userId);
@@ -112,7 +117,7 @@ namespace OneCore.Repositories
                     .Where(x => strictSearch ?
                         words.All(word => x.Email.Contains(word)) :
                         words.Any(word => x.Email.Contains(word)))
-                    .OrderBy(p => p.Email)
+                    .OrderBy(p => p.UserId)
                     .Skip((pageIndex - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();

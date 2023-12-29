@@ -101,10 +101,13 @@
                         </li>
                         @for (int i = 1; i <= paginatedUserDTO.TotalPages; i++)
                         {
+                            int currentPage = i;
                             <li class="page-item 
                                 @(i == paginatedUserDTO.PageIndex ? "active" : "")">
                                 <button class="page-link" 
-                                @onclick="() => OnPageSelected(i)">@i</button>
+                                        onclick=@(() => OnPageSelected(currentPage))>
+                                    @i
+                                </button>
                             </li>
                         }
                         <li class="page-item 
@@ -168,7 +171,8 @@ else
                 15,
                 CancellationToken.None);
 
-                TotalRows = paginatedUserDTO.lstUser.Count();
+                TotalRows = await userRepository
+                    .Count(CancellationToken.None);
             }
             else
             {
@@ -203,7 +207,8 @@ else
                 15,
                 CancellationToken.None);
 
-            TotalRows = paginatedUserDTO.lstUser.Count();
+            TotalRows = await userRepository
+                    .Count(CancellationToken.None);
         }
         catch (Exception ex)
         {
@@ -225,6 +230,9 @@ else
                 paginatedUserDTO.PageSize,
                 CancellationToken.None);
         }
+
+        //Re-render the page
+        await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
     }
 
     async Task OnPageSelected(int pageIndex)
@@ -236,6 +244,9 @@ else
                 pageIndex,
                 paginatedUserDTO.PageSize,
                 CancellationToken.None);
+
+        //Re-render the page
+        await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
     }
 
     async Task OnNextPage()
@@ -250,6 +261,9 @@ else
                 paginatedUserDTO.PageSize,
                 CancellationToken.None);
         }
+
+        //Re-render the page
+        await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
     }
 
     private async void Delete(int UserId)
@@ -265,7 +279,8 @@ else
             15, 
             CancellationToken.None);
 
-            TotalRows = paginatedUserDTO.lstUser.Count();
+            TotalRows = await userRepository
+                    .Count(CancellationToken.None);
 
             TextToSearch = "";
 
