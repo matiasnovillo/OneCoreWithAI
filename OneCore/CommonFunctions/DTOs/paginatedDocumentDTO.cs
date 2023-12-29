@@ -2,9 +2,9 @@
 
 namespace OneCore.CommonFunctions.DTOs
 {
-    public class paginatedUserDTO
+    public class paginatedDocumentDTO
     {
-        public List<User?> lstUser { get; set; }
+        public List<Document> lstDocument { get; set; }
         public int TotalItems { get; set; }
         public int PageIndex { get; set; }
         public int PageSize { get; set; }

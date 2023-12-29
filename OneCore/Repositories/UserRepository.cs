@@ -106,8 +106,6 @@ namespace OneCore.Repositories
                 .Trim(), @"\s+", " ")
                 .Split(" ");
 
-            List<User?> lstUser = [];
-
             int TotalUser = await _context.User.CountAsync();
 
             var paginatedUser = await _context.User

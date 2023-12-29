@@ -91,25 +91,32 @@
                 </table>
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item @(paginatedUserDTO.HasPreviousPage ? "" : "disabled")">
-                            <button class="page-link" disabled="@(!paginatedUserDTO.HasPreviousPage)" @onclick="() => OnPreviousPage()">
+                        <li class="page-item 
+                            @(paginatedUserDTO.HasPreviousPage ? "" : "disabled")">
+                            <button class="page-link" 
+                            disabled="@(!paginatedUserDTO.HasPreviousPage)" 
+                            @onclick="() => OnPreviousPage()">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
                         </li>
                         @for (int i = 1; i <= paginatedUserDTO.TotalPages; i++)
                         {
-                            <li class="page-item @(i == paginatedUserDTO.PageIndex ? "active" : "")">
-                                <button class="page-link" @onclick="() => OnPageSelected(i)">@i</button>
+                            <li class="page-item 
+                                @(i == paginatedUserDTO.PageIndex ? "active" : "")">
+                                <button class="page-link" 
+                                @onclick="() => OnPageSelected(i)">@i</button>
                             </li>
                         }
-                        <li class="page-item @(paginatedUserDTO.HasNextPage ? "" : "disabled")">
-                            <button class="page-link" disabled="@(!paginatedUserDTO.HasNextPage)" @onclick="() => OnNextPage()">
+                        <li class="page-item 
+                            @(paginatedUserDTO.HasNextPage ? "" : "disabled")">
+                            <button class="page-link" 
+                            disabled="@(!paginatedUserDTO.HasNextPage)" 
+                            @onclick="() => OnNextPage()">
                                 <i class="fas fa-chevron-right"></i>
                             </button>
                         </li>
                     </ul>
                 </nav>
-
             </div>
         </div>
     </div>
