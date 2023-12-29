@@ -1,0 +1,218 @@
+﻿@page "/ias"
+@using OneCore.Entities
+@using OneCore.Repositories
+@using OneCore.Components.Shared
+@inject UserRepository userRepository;
+@inject CustomLoggerRepository customLoggerRepository;
+@inject StateContainer StateContainer
+
+<PageTitle>IAs no utilizadas - OneCore</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h4 id="tabla"><b>IA's exploradas imposibles de usar</b></h4>
+                </div>
+                <div class="card-body">
+                    <p>Quiero recalcar que las siguientes IA's fueron buscadas
+                        y analizadas para ser usadas pero no hubo efecto con ellas.
+                        En la siguiente tabla explico la razón de porque estas no
+                        son posibles de usar
+                    </p>
+                    <table class="table table-striped table-hover table-responsive">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Razón de desuso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Claude</td>
+                                <td>No sirve, es como ChatGPT, y cobran por su uso</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>ChatGPT</td>
+                                <td>Cobran y creo que no ofrecen las funcionalidades requeridas</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>Copilot de Github</td>
+                                <td>No es para resumir o extraer información clave de texto, es más
+                                    bien utilizada para ayudar a desarrolladores a hacer código
+                                    más rápido
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4</th>
+                                <td>OpenTextSummarizer</td>
+                                <td>
+                                    Pude utilizarla casi con éxito pero la salida es código binario
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">5</th>
+                                <td>T5</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">6</th>
+                                <td>Bart</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes, en C# no
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">7</th>
+                                <td>T5</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes, en C# no
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">8</th>
+                                <td>BlackBox AI</td>
+                                <td>
+                                    No sirve para estos casos, es como ChatGPT
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">9</th>
+                                <td>Whisper</td>
+                                <td>
+                                    Solo sirve en Python y otros lenguajes, en C# no
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">10</th>
+                                <td>GPT-3</td>
+                                <td>
+                                    Es de OpenAI, por lo tanto cobra, además no ofrece nada para C#
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    #region Properties
+    [SupplyParameterFromForm]
+    public User? User { get; set; }
+
+    public string MessageForLoginForm { get; set; } = "";
+
+    public bool Toggle { get; set; } = false;
+    #endregion
+
+    protected override void OnInitialized()
+    {
+        //Look for saved user in shared component, simulates a session
+        User = StateContainer.User == null ? new() : StateContainer.User;
+
+        if (User.UserId !=0)
+        {
+            //Logged user
+            Toggle = true;
+        }
+        else
+        {
+            //Not logged user
+            Toggle = false;
+        }
+    }
+
+    #region Events
+    private async void Submit()
+    {
+        try
+        {
+            //Validations
+            if (User!.Email == "" || User!.Password == "")
+            {
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i>
+                                        Completa todos los campos";
+                return;
+            }
+
+            //Encrypt password
+            string EncryptedPassword = new CommonFunctions.CommonFunctions().EncodeString(User.Password);
+
+            //Get user by email and password
+            User = userRepository.
+            GetByEmailAndPassword(User.Email, 
+                EncryptedPassword,
+                CancellationToken.None);
+
+            //Next if is to quit null value from User
+            if (User == null)
+            {
+                User = new();
+            }
+
+            if (User.UserId != 0)
+            {
+                //User found
+                StateContainer.User = User;
+                Toggle = true;
+
+                //Log info
+                CustomLogger customLogger = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Interacción del usuario",
+                        Description = $@"El usuario {User.Email} ha ingresado 
+                                        al sistema",
+                        UserId = User.UserId
+                    };
+                await customLoggerRepository
+                .Add(customLogger, CancellationToken.None);
+            }
+            else
+            {
+                //User not found
+                MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> 
+                                        Usuario no encontrado";
+
+                //Log info
+                CustomLogger customLogger = new()
+                    {
+                        DateTime = DateTime.Now,
+                        InteractionType = $@"Interacción del usuario",
+                        Description = $@"Un usuario ha intentado entrar al
+                                        sistema pero no pudo",
+                        UserId = 1
+                    };
+                await customLoggerRepository
+                .Add(customLogger, CancellationToken.None);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageForLoginForm = $@"<i class=""fas fa-exclamation""></i> 
+                                    Hubo un error. Intenta nuevamente. 
+                                    Mensaje de error: {ex.Message}";
+        }
+    }
+
+    private void Salir(MouseEventArgs e)
+    {
+        User = new User();
+        StateContainer.User = new User();
+
+        //Show login form
+        Toggle = false;
+    }
+    #endregion
+}
+

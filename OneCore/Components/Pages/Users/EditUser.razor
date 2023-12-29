@@ -137,7 +137,8 @@ else
             }
 
             //Avoid creating an existing email
-            List<User?> SelectedUsers = userRepository.GetAllByEmail(User.Email, false, CancellationToken.None);
+            List<User?> SelectedUsers = userRepository
+                .GetAllByEmail(User.Email, false, CancellationToken.None);
 
             if (SelectedUsers.Count() != 0)
             {

@@ -1,0 +1,256 @@
+﻿@page "/information"
+@using OneCore.Entities
+@using OneCore.Repositories
+@using OneCore.Components.Shared
+@inject UserRepository userRepository;
+@inject CustomLoggerRepository customLoggerRepository;
+@inject StateContainer StateContainer
+
+<PageTitle>Información - OneCore</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light my-3">
+                <img src="/img/NETyAWS.png" class="card-img-top mb-4 d-none d-md-inline"
+                     width="350" alt="logos">
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>.NET</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se usa .NET 8 y Blazor (renderizado del lado del 
+                            servidor) para el desarrollo de la aplicación web
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para el estilo y diseño del front-end se
+                            usa Bootstrap 5
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para los iconos se usa Font Awesome mediante
+                            su CDN
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se usa Entity Framework Core para el acceso a datos, 
+                            también se utilizan comandos para desplegar y 
+                            actualizar la base de datos como 
+                            <code>
+                                <b>Add-Migration [nombre]</b>
+                            </code> y
+                            <code>
+                                <b>Update-Database</b>
+                            </code>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se usa arquitectura de 4 capas:
+                            <ol>
+                                <li>
+                                    Páginas Blazor
+                                    (renderizado del lado del servidor), 
+                                    las cuales se alojan en la carpeta
+                                    <code><b>/OneCore/Components</b></code>
+                                </li>
+                                <li>
+                                    Repositorios con código LINQ para operaciones
+                                    a base de datos, los cuales se alojan en la
+                                    carpeta
+                                    <code><b>/OneCore/Repositories</b></code>
+                                </li>
+                                <li>
+                                    Entidades, las cuales contienen las propiedades
+                                    como copia fiel de las columnas de cada tabla,
+                                    estas se alojan en la carpeta 
+                                    <code><b>/OneCore/Entities</b></code>
+                                </li>
+                                <li>
+                                    Base de datos con MS SQL Server. Las migraciones
+                                    se encuentran en la carpeta 
+                                    <code><b>/OneCore/Migrations</b></code>
+                                </li>
+                            </ol>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se modularizan funciones comunes a toda la aplicación,
+                            las cuales se alojan en la carpeta 
+                            <code><b>/OneCore/CommonFunctions</b></code>
+                            Cabe recalcar que aquí se alojan las funciones para 
+                            las tecnologías de IA
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>AWS</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Los archivos .pdf, .jpg y .png se guardan en
+                            AWS S3
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de textos,
+                            Textract de AWS
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>Google Cloud</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de textos,
+                            orientado a análisis de sentimientos, 
+                            Google Cloud NLP API
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>Azure Text Analytics</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza para análisis de palabras claves,
+                            Azure Text Analytics.
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>Python con TextRankSummarizer</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se utiliza una función C# que ejecuta un
+                            script Python para hacer resumenes de textos
+                            con la libreria Python, TextRankSummarizer
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>Pruebas unitarias</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se hicieron en total 18 pruebas unitarias
+                            con el framework XUnit, de las cuales 12 fueron
+                            hechas para AWS, 3 para Google y 3 para Azure
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>NOTAS</b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            No se usa sesión ni en el servidor ni el
+                            buscador, para pasar información entre
+                            componentes/páginas se usa un servicio alojado
+                            en Components/Shared/StateContainer.cs
+                        </li>
+                        <li class="list-group-item bg-light">
+                            El diseño de la aplicación esta totalmente
+                            en castellano, pero el código esta todo en
+                            ingles
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para ingresar a la aplicación, accede con estas 
+                            credenciales:
+                            <code><b>Email: novillo.matias1@gmail.com</b></code> y
+                            <code><b>Contraseña: z</b></code>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Para levantar la base de datos localmente puedes 
+                            hacerlo de dos maneras, levantando el backup 
+                            <code><b>OneCore.bak</b></code> alojado en la carpeta
+                            <code><b>/Backup</b></code>. La segunda forma es
+                            ejecutando el comando <code><b>Update-Database</b></code>
+                            en la Consola del administrador de paquetes. Si no
+                            funciona esta segunda forma quizás debas ejecutar primero
+                            el comando 
+                            <code><b>Add-Migration nombrecualquiera</b></code> y luego,
+                            ejecutar nuevamente el comando <code><b>Update-Database</b></code>
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5><b>
+                                Features agregados además de los 
+                                solicitados
+                                </b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Sistema de login con email y contraseña
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Aplicación totalmente responsive gracias a las clases de
+                            Bootstrap 5. Solo hay defectos al mostrar tablas en
+                            pequeñas pantallas
+                        </li>
+                        <li class="list-group-item bg-light">
+                            En la página de log, se puede descargar,
+                            además de Excel, también PDF y CSV
+                        </li>
+                        <li class="list-group-item bg-light">
+                            En la página de log, se pueden hacer búsquedas
+                            estrictas o laxas
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Se hizo una página especial para subir
+                            facturas customizadas de un proveedor
+                            particular de telecomunicaciones de Argentina
+                        </li>
+                        <li class="list-group-item bg-light">
+                            CRUD de usuarios para agregar, editar o eliminar 
+                            usuarios
+                        </li>
+                        <li class="list-group-item bg-light">
+                            CRUD de archivos para editar o eliminar los archivos
+                            subidos
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Permitir subir varios archivos en una sola operación
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Encriptación de las claves de los usuarios en la
+                            base de datos para mayor seguridad. La encriptación
+                            utilizada es unilateral, lo cual no puede ser
+                            desencriptada
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Las funciones de cada IA son separadas en proyectos C#
+                            aparte para ser reutilizadas en otros proyectos
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <h5>
+                                <b>
+                                    Features que se pueden agregar en 
+                                    un futuro
+                                </b>
+                            </h5>
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Trabajar con hilos para mostrar mensajes en tiempo
+                            real en las páginas
+                        </li>
+                        <li class="list-group-item bg-light">
+                            Dividir la aplicación en microservicios para login
+                            de usuarios, CRUD de usuarios, CRUD de archivos,
+                            logging, y subida y análisis de archivos. Solo si
+                            es sumamente necesario
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

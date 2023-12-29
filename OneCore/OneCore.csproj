@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Backup\" />
-    <Folder Include="CommonFunctions\DTOs\" />
     <Folder Include="CommonFunctions\PythonScript\" />
     <Folder Include="wwwroot\Downloads\ExcelFiles\" />
     <Folder Include="wwwroot\Uploads\" />

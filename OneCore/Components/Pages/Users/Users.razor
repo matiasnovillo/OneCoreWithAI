@@ -2,6 +2,7 @@
 @using OneCore.Repositories
 @using OneCore.Entities
 @using OneCore.Components.Shared
+@using OneCore.CommonFunctions.DTOs;
 @inject UserRepository userRepository
 @inject StateContainer StateContainer
 
@@ -61,30 +62,54 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (User? user in lstUser)
+                        @if (paginatedUserDTO != null)
                         {
-                            <tr>
-                                <td>@user?.UserId</td>
-                                <td>@user?.Email</td>
-                                <td>@user?.Password</td>
-                                <td>
-                                    <div class="nav-item">
-                                        <button class="btn btn-sm btn-outline-danger"
-                                                onclick=@(() => Delete(@user!.UserId))>
-                                            <span class="fas fa-trash" aria-hidden="true"></span>
-                                        </button>
-                                    </div>
-                                    <div class="nav-item mt-2">
-                                        <a class="btn btn-sm btn-outline-info" 
-                                            href="users/@user?.UserId">
-                                            <span class="fas fa-pen" aria-hidden="true"></span>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                            @foreach (User? user in paginatedUserDTO.lstUser)
+                            {
+                                <tr>
+                                    <td>@user?.UserId</td>
+                                    <td>@user?.Email</td>
+                                    <td>@user?.Password</td>
+                                    <td>
+                                        <div class="nav-item">
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick=@(() => Delete(@user!.UserId))>
+                                                <span class="fas fa-trash" aria-hidden="true"></span>
+                                            </button>
+                                        </div>
+                                        <div class="nav-item mt-2">
+                                            <a class="btn btn-sm btn-outline-info"
+                                               href="users/@user?.UserId">
+                                                <span class="fas fa-pen" aria-hidden="true"></span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(paginatedUserDTO.HasPreviousPage ? "" : "disabled")">
+                            <button class="page-link" disabled="@(!paginatedUserDTO.HasPreviousPage)" @onclick="() => OnPreviousPage()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </li>
+                        @for (int i = 1; i <= paginatedUserDTO.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == paginatedUserDTO.PageIndex ? "active" : "")">
+                                <button class="page-link" @onclick="() => OnPageSelected(i)">@i</button>
+                            </li>
+                        }
+                        <li class="page-item @(paginatedUserDTO.HasNextPage ? "" : "disabled")">
+                            <button class="page-link" disabled="@(!paginatedUserDTO.HasNextPage)" @onclick="() => OnNextPage()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+
             </div>
         </div>
     </div>
@@ -110,10 +135,11 @@ else
     public string SuccessMessage { get; set; } = "";
 
     private User? User;
-    private List<User?>? lstUser { get; set; }
+
+    paginatedUserDTO paginatedUserDTO;
     #endregion
-    
-    protected override void OnInitialized()
+
+    protected override async Task<bool> OnInitializedAsync()
     {
         User = StateContainer.User;
 
@@ -123,9 +149,19 @@ else
             {
                 //Logged user
                 Toggle = true;
-                lstUser = userRepository.
-                GetAll(CancellationToken.None);
-                TotalRows = lstUser.Count();
+
+                paginatedUserDTO = new();
+                paginatedUserDTO.lstUser = [];
+
+                paginatedUserDTO = await userRepository
+            .GetAllByEmailPaginated(
+                "",
+                checkStrict,
+                1,
+                15,
+                CancellationToken.None);
+
+                TotalRows = paginatedUserDTO.lstUser.Count();
             }
             else
             {
@@ -140,20 +176,27 @@ else
         }
 
         base.OnInitialized();
+
+        return true;
     }
 
     #region Events
-    private void SearchText(ChangeEventArgs args)
+    private async void SearchText(ChangeEventArgs args)
     {
         try
         {
             //Basic configuration
             SuccessMessage = "";
 
-            lstUser = userRepository
-            .GetAllByEmail(args.Value.ToString(), checkStrict, CancellationToken.None);
+            paginatedUserDTO = await userRepository
+            .GetAllByEmailPaginated(
+                args.Value.ToString(),
+                checkStrict,
+                1,
+                15,
+                CancellationToken.None);
 
-            TotalRows = lstUser.Count();
+            TotalRows = paginatedUserDTO.lstUser.Count();
         }
         catch (Exception ex)
         {
@@ -163,16 +206,59 @@ else
 
     }
 
+    async Task OnPreviousPage()
+    {
+        if (paginatedUserDTO.HasPreviousPage)
+        {
+            paginatedUserDTO = await userRepository
+            .GetAllByEmailPaginated(
+                TextToSearch,
+                checkStrict,
+                (paginatedUserDTO.PageIndex - 1),
+                paginatedUserDTO.PageSize,
+                CancellationToken.None);
+        }
+    }
+
+    async Task OnPageSelected(int pageIndex)
+    {
+        paginatedUserDTO = paginatedUserDTO = await userRepository
+            .GetAllByEmailPaginated(
+                TextToSearch,
+                checkStrict,
+                pageIndex,
+                paginatedUserDTO.PageSize,
+                CancellationToken.None);
+    }
+
+    async Task OnNextPage()
+    {
+        if (paginatedUserDTO.HasNextPage)
+        {
+            paginatedUserDTO = await userRepository
+            .GetAllByEmailPaginated(
+                TextToSearch,
+                checkStrict,
+                (paginatedUserDTO.PageIndex + 1),
+                paginatedUserDTO.PageSize,
+                CancellationToken.None);
+        }
+    }
+
     private async void Delete(int UserId)
     {
         try
         {
             await userRepository.DeleteByUserId(UserId, CancellationToken.None);
 
-            lstUser = userRepository.
-            GetAll(CancellationToken.None);
+            paginatedUserDTO = await userRepository.
+            GetAllByEmailPaginated("", 
+            checkStrict,
+            1,
+            15, 
+            CancellationToken.None);
 
-            TotalRows = lstUser.Count();
+            TotalRows = paginatedUserDTO.lstUser.Count();
 
             TextToSearch = "";
 

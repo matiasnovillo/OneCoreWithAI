@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OneCore.Entities;
 using System.Text.RegularExpressions;
+using OneCore.CommonFunctions.DTOs;
 
 namespace OneCore.Repositories
 {
@@ -62,8 +63,8 @@ namespace OneCore.Repositories
         }
 
         public List<User?> GetAllByEmail(string textToSearch,
-            bool strictSearch,
-            CancellationToken cancellationToken)
+    bool strictSearch,
+    CancellationToken cancellationToken)
         {
             //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
             string[] words = Regex
@@ -91,6 +92,40 @@ namespace OneCore.Repositories
             }
 
             return lstUser;
+        }
+
+        public async Task<paginatedUserDTO> GetAllByEmailPaginated(string textToSearch,
+            bool strictSearch,
+            int pageIndex, 
+            int pageSize,
+            CancellationToken cancellationToken)
+        {
+            //textToSearch: "novillo matias  com" -> words: {novillo,matias,com}
+            string[] words = Regex
+                .Replace(textToSearch
+                .Trim(), @"\s+", " ")
+                .Split(" ");
+
+            List<User?> lstUser = [];
+
+            int TotalUser = await _context.User.CountAsync();
+
+            var paginatedUser = await _context.User
+                    .Where(x => strictSearch ?
+                        words.All(word => x.Email.Contains(word)) :
+                        words.Any(word => x.Email.Contains(word)))
+                    .OrderBy(p => p.Email)
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+            return new paginatedUserDTO
+            {
+                lstUser = paginatedUser,
+                TotalItems = TotalUser,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
         #endregion
 
