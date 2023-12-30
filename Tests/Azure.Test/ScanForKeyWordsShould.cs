@@ -4,9 +4,9 @@ namespace Azure.Test
 {
     public class ScanForKeyWordsShould
     {
-        public string AzureKeyCredential = "35d52c1dc04e4250a0a411a2eb0b5bb8";
+        public string AzureKeyCredential = "[AzureKeyCredential]";
 
-        public string Uri = "https://textanalyticsmatiasnovillo.cognitiveservices.azure.com/";
+        public string Uri = "https://textanalytics[UserName].cognitiveservices.azure.com/";
 
         [Fact]
         public void ThrowWhenTextToAnalyzeIsNull()

@@ -6,7 +6,7 @@ namespace AWS.Test
 {
     public class SaveFileInAWSS3Should
     {
-        readonly string BucketName = "matiasnovillos3";
+        readonly string BucketName = "[BucketName]";
 
         readonly AmazonS3Client AmazonS3Client = new(RegionEndpoint.USEast2);
 

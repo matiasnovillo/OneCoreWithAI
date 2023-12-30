@@ -4,7 +4,7 @@ namespace Google.Test
 {
     public class ScanForSentimentsShould
     {
-        public string GoogleAppCredentialsFilePath = "C:\\FiyiStack\\Test\\AWSTextract\\lustrous-router-409218-e98c8c9c38a8.json";
+        public string GoogleAppCredentialsFilePath = "[GoogleAppCredentialsFilePath].json";
 
         [Fact]
         public void ThrowWhenTextToAnalyzeIsNull()
